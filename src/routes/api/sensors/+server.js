@@ -26,7 +26,18 @@ export async function POST({ request }) {
 			{ status: 400 }
 		);
 	}
-
+	if (
+		data.humidity < 0 ||
+		data.humidity > 100 ||
+		data.soilMoisture < 0 ||
+		data.soilMoisture > 100 ||
+		data.light < 0
+	) {
+		return json(
+			{ message: 'Sensordaten außerhalb des gültigen Bereichs' },
+			{ status: 400 }
+		);
+}
 	latestSensorData = {
 		measuredAt: new Date().toISOString(),
 		temperature: data.temperature,
