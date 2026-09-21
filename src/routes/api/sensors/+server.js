@@ -15,6 +15,18 @@ export function GET() {
 export async function POST({ request }) {
 	const data = await request.json();
 
+	if (
+		typeof data.temperature !== 'number' ||
+		typeof data.humidity !== 'number' ||
+		typeof data.soilMoisture !== 'number' ||
+		typeof data.light !== 'number'
+	) {
+		return json(
+			{ message: 'Ungültige Sensordaten' },
+			{ status: 400 }
+		);
+	}
+
 	latestSensorData = {
 		measuredAt: new Date().toISOString(),
 		temperature: data.temperature,
