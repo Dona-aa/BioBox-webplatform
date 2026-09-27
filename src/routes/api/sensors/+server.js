@@ -5,7 +5,8 @@ export async function GET() {
 	try {
 		const [rows] = await db.execute(
 			`SELECT measured_at, air_temp_c, air_humidity_pct,
-			        soil_moisture_pct, soil_temp_c, light_lux
+			        soil_moisture_pct, soil_temp_c, light_lux,
+			        dli_est_mol, sensor_health
 			 FROM sensor_measurements
 			 WHERE device_id = ?
 			 ORDER BY measured_at DESC
@@ -28,7 +29,11 @@ export async function GET() {
 			humidity: Number(row.air_humidity_pct),
 			soilMoisture: Number(row.soil_moisture_pct),
 			soilTemperature: Number(row.soil_temp_c),
-			light: Number(row.light_lux)
+			light: Number(row.light_lux),
+			dli: row.dli_est_mol === null
+				? null
+				: Number(row.dli_est_mol),
+			sensorHealth: row.sensor_health
 		});
 	} catch (error) {
 		console.error('Fehler beim Laden der Sensordaten:', error);
