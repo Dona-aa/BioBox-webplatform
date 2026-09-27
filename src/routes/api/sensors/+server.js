@@ -53,13 +53,13 @@ export async function POST({ request }) {
 	}
 
 	if (
-		typeof data.deviceId !== 'number' ||
-		typeof data.measuredAt !== 'string' ||
-		typeof data.temperature !== 'number' ||
-		typeof data.humidity !== 'number' ||
-		typeof data.soilMoisture !== 'number' ||
-		typeof data.soilTemperature !== 'number' ||
-		typeof data.light !== 'number'
+		typeof data.device_id !== 'number' ||
+		typeof data.measured_at !== 'string' ||
+		typeof data.air_temp_c !== 'number' ||
+		typeof data.air_humidity_pct !== 'number' ||
+		typeof data.soil_moisture_pct !== 'number' ||
+		typeof data.soil_temp_c !== 'number' ||
+		typeof data.light_lux !== 'number'
 	) {
 		return json(
 			{ message: 'Ungültige Sensordaten' },
@@ -68,11 +68,11 @@ export async function POST({ request }) {
 	}
 
 	if (
-		data.humidity < 0 ||
-		data.humidity > 100 ||
-		data.soilMoisture < 0 ||
-		data.soilMoisture > 100 ||
-		data.light < 0
+		data.air_humidity_pct < 0 ||
+		data.air_humidity_pct > 100 ||
+		data.soil_moisture_pct < 0 ||
+		data.soil_moisture_pct > 100 ||
+		data.light_lux < 0
 	) {
 		return json(
 			{ message: 'Sensordaten außerhalb des gültigen Bereichs' },
@@ -80,7 +80,7 @@ export async function POST({ request }) {
 		);
 	}
 
-	const measuredAt = new Date(data.measuredAt);
+	const measuredAt = new Date(data.measured_at);
 
 	if (Number.isNaN(measuredAt.getTime())) {
 		return json(
@@ -96,20 +96,18 @@ export async function POST({ request }) {
 				soil_moisture_pct, soil_temp_c, light_lux)
 			 VALUES (?, ?, ?, ?, ?, ?, ?)`,
 			[
-				data.deviceId,
+				data.device_id,
 				measuredAt,
-				data.temperature,
-				data.humidity,
-				data.soilMoisture,
-				data.soilTemperature,
-				data.light
+				data.air_temp_c,
+				data.air_humidity_pct,
+				data.soil_moisture_pct,
+				data.soil_temp_c,
+				data.light_lux
 			]
 		);
 
 		return json(
-			{
-				message: 'Sensordaten wurden gespeichert'
-			},
+			{ message: 'Sensordaten wurden gespeichert' },
 			{ status: 201 }
 		);
 	} catch (error) {
