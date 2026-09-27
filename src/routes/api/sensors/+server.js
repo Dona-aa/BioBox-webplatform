@@ -59,7 +59,10 @@ export async function POST({ request }) {
 		typeof data.air_humidity_pct !== 'number' ||
 		typeof data.soil_moisture_pct !== 'number' ||
 		typeof data.soil_temp_c !== 'number' ||
-		typeof data.light_lux !== 'number'
+		typeof data.light_lux !== 'number' ||
+		(data.dli_est_mol !== null &&
+			typeof data.dli_est_mol !== 'number') ||
+		typeof data.sensor_health !== 'string'
 	) {
 		return json(
 			{ message: 'Ungültige Sensordaten' },
@@ -72,10 +75,20 @@ export async function POST({ request }) {
 		data.air_humidity_pct > 100 ||
 		data.soil_moisture_pct < 0 ||
 		data.soil_moisture_pct > 100 ||
-		data.light_lux < 0
+		data.light_lux < 0 ||
+		(data.dli_est_mol !== null && data.dli_est_mol < 0)
 	) {
 		return json(
 			{ message: 'Sensordaten außerhalb des gültigen Bereichs' },
+			{ status: 400 }
+		);
+	}
+
+	if (
+		!['ok', 'warning', 'error'].includes(data.sensor_health)
+	) {
+		return json(
+			{ message: 'Ungültiger Sensorstatus' },
 			{ status: 400 }
 		);
 	}
@@ -93,8 +106,9 @@ export async function POST({ request }) {
 		await db.execute(
 			`INSERT INTO sensor_measurements
 				(device_id, measured_at, air_temp_c, air_humidity_pct,
-				soil_moisture_pct, soil_temp_c, light_lux)
-			 VALUES (?, ?, ?, ?, ?, ?, ?)`,
+				soil_moisture_pct, soil_temp_c, light_lux,
+				dli_est_mol, sensor_health)
+			 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 			[
 				data.device_id,
 				measuredAt,
@@ -102,7 +116,9 @@ export async function POST({ request }) {
 				data.air_humidity_pct,
 				data.soil_moisture_pct,
 				data.soil_temp_c,
-				data.light_lux
+				data.light_lux,
+				data.dli_est_mol,
+				data.sensor_health
 			]
 		);
 
