@@ -53,6 +53,8 @@ export async function POST({ request }) {
 	}
 
 	if (
+		typeof data.deviceId !== 'number' ||
+		typeof data.measuredAt !== 'string' ||
 		typeof data.temperature !== 'number' ||
 		typeof data.humidity !== 'number' ||
 		typeof data.soilMoisture !== 'number' ||
@@ -78,7 +80,14 @@ export async function POST({ request }) {
 		);
 	}
 
-	const measuredAt = new Date();
+	const measuredAt = new Date(data.measuredAt);
+
+	if (Number.isNaN(measuredAt.getTime())) {
+		return json(
+			{ message: 'Ungültiger Messzeitpunkt' },
+			{ status: 400 }
+		);
+	}
 
 	try {
 		await db.execute(
@@ -87,7 +96,7 @@ export async function POST({ request }) {
 				soil_moisture_pct, soil_temp_c, light_lux)
 			 VALUES (?, ?, ?, ?, ?, ?, ?)`,
 			[
-				1,
+				data.deviceId,
 				measuredAt,
 				data.temperature,
 				data.humidity,
