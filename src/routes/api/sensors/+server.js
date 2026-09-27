@@ -119,6 +119,13 @@ export async function POST({ request }) {
 			});
 		}
 
+		if (error.code === 'ER_NO_REFERENCED_ROW_2') {
+			return json(
+				{ message: 'Gerät nicht gefunden' },
+				{ status: 400 }
+			);
+		}
+
 		console.error('Fehler beim Speichern der Sensordaten:', error);
 
 		return json(
