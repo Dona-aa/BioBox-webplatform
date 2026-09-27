@@ -10,3 +10,5 @@
 <p>Bodenfeuchtigkeit: {data.sensorData.soilMoisture} %</p>
 <p>Bodentemperatur: {data.sensorData.soilTemperature} °C</p>
 <p>Licht: {data.sensorData.light} lux</p>
+
+<p>Gespeicherte Messungen: {data.sensorHistory.length}</p>
