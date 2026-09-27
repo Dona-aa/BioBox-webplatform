@@ -108,19 +108,17 @@ export async function POST({ request }) {
 
 		return json(
 			{
-				message: 'Sensordaten wurden gespeichert',
-				sensorData: {
-					measuredAt: measuredAt.toISOString(),
-					temperature: data.temperature,
-					humidity: data.humidity,
-					soilMoisture: data.soilMoisture,
-					soilTemperature: data.soilTemperature,
-					light: data.light
-				}
+				message: 'Sensordaten wurden gespeichert'
 			},
 			{ status: 201 }
 		);
 	} catch (error) {
+		if (error.code === 'ER_DUP_ENTRY') {
+			return json({
+				message: 'Sensordaten wurden bereits gespeichert'
+			});
+		}
+
 		console.error('Fehler beim Speichern der Sensordaten:', error);
 
 		return json(
