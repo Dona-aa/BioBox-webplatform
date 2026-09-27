@@ -67,10 +67,37 @@ export async function POST({ request }) {
 		typeof data.light_lux !== 'number' ||
 		(data.dli_est_mol !== null &&
 			typeof data.dli_est_mol !== 'number') ||
-		typeof data.sensor_health !== 'string'
+		typeof data.sensor_health !== 'object' ||
+		data.sensor_health === null ||
+		Array.isArray(data.sensor_health)
 	) {
 		return json(
 			{ message: 'Ungültige Sensordaten' },
+			{ status: 400 }
+		);
+	}
+
+	const allowedSensorStates = [
+		'ok',
+		'stale',
+		'fault',
+		'uncalibrated'
+	];
+
+	if (
+		!allowedSensorStates.includes(data.sensor_health.bme280) ||
+		!allowedSensorStates.includes(data.sensor_health.ds18b20) ||
+		!allowedSensorStates.includes(data.sensor_health.veml7700) ||
+		!allowedSensorStates.includes(data.sensor_health.soil) ||
+		!Number.isInteger(data.sensor_health.i2c_recoveries) ||
+		data.sensor_health.i2c_recoveries < 0 ||
+		!Number.isInteger(data.sensor_health.buffer_dropped) ||
+		data.sensor_health.buffer_dropped < 0 ||
+		!Number.isInteger(data.sensor_health.uptime_s) ||
+		data.sensor_health.uptime_s < 0
+	) {
+		return json(
+			{ message: 'Ungültiger Sensorstatus' },
 			{ status: 400 }
 		);
 	}
@@ -89,13 +116,6 @@ export async function POST({ request }) {
 		);
 	}
 
-	if (!['ok', 'warning', 'error'].includes(data.sensor_health)) {
-		return json(
-			{ message: 'Ungültiger Sensorstatus' },
-			{ status: 400 }
-		);
-	}
-
 	const measuredAt = new Date(data.measured_at);
 
 	if (Number.isNaN(measuredAt.getTime())) {
@@ -106,7 +126,6 @@ export async function POST({ request }) {
 	}
 
 	try {
-		// Find the internal database ID using Grid's device code
 		const [devices] = await db.execute(
 			`SELECT id
 			 FROM devices
@@ -139,7 +158,7 @@ export async function POST({ request }) {
 				data.soil_temp_c,
 				data.light_lux,
 				data.dli_est_mol,
-				data.sensor_health
+				JSON.stringify(data.sensor_health)
 			]
 		);
 
