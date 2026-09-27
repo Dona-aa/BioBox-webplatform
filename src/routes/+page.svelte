@@ -5,21 +5,42 @@
 
 	let sensorData = $state(data.sensorData);
 	let sensorHistory = $state(data.sensorHistory);
+	let connectionStatus = $state('Verbunden');
 
-	onMount(() => {
-		const interval = setInterval(async () => {
+	async function updateSensorData() {
+		try {
 			const sensorResponse = await fetch('/api/sensors');
-			sensorData = await sensorResponse.json();
+
+			if (!sensorResponse.ok) {
+				throw new Error('Sensordaten konnten nicht geladen werden');
+			}
 
 			const historyResponse = await fetch('/api/sensors/history');
+
+			if (!historyResponse.ok) {
+				throw new Error('Sensorhistorie konnte nicht geladen werden');
+			}
+
+			sensorData = await sensorResponse.json();
 			sensorHistory = await historyResponse.json();
-		}, 5000);
+
+			connectionStatus = 'Verbunden';
+		} catch (error) {
+			console.error(error);
+			connectionStatus = 'Verbindungsproblem';
+		}
+	}
+
+	onMount(() => {
+		const interval = setInterval(updateSensorData, 5000);
 
 		return () => clearInterval(interval);
 	});
 </script>
 
 <h1>BioBox</h1>
+
+<p>Verbindung: {connectionStatus}</p>
 
 <p>Messzeit: {sensorData.measuredAt}</p>
 <p>Temperatur: {sensorData.temperature} °C</p>
