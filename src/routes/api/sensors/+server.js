@@ -58,7 +58,7 @@ export async function POST({ request }) {
 	}
 
 	if (
-		typeof data.device_id !== 'number' ||
+		typeof data.device_id !== 'string' ||
 		typeof data.measured_at !== 'string' ||
 		typeof data.air_temp_c !== 'number' ||
 		typeof data.air_humidity_pct !== 'number' ||
@@ -89,9 +89,7 @@ export async function POST({ request }) {
 		);
 	}
 
-	if (
-		!['ok', 'warning', 'error'].includes(data.sensor_health)
-	) {
+	if (!['ok', 'warning', 'error'].includes(data.sensor_health)) {
 		return json(
 			{ message: 'Ungültiger Sensorstatus' },
 			{ status: 400 }
@@ -108,6 +106,24 @@ export async function POST({ request }) {
 	}
 
 	try {
+		// Find the internal database ID using Grid's device code
+		const [devices] = await db.execute(
+			`SELECT id
+			 FROM devices
+			 WHERE device_code = ?
+			 LIMIT 1`,
+			[data.device_id]
+		);
+
+		if (devices.length === 0) {
+			return json(
+				{ message: 'Gerät nicht gefunden' },
+				{ status: 400 }
+			);
+		}
+
+		const deviceId = devices[0].id;
+
 		await db.execute(
 			`INSERT INTO sensor_measurements
 				(device_id, measured_at, air_temp_c, air_humidity_pct,
@@ -115,7 +131,7 @@ export async function POST({ request }) {
 				dli_est_mol, sensor_health)
 			 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 			[
-				data.device_id,
+				deviceId,
 				measuredAt,
 				data.air_temp_c,
 				data.air_humidity_pct,
@@ -136,13 +152,6 @@ export async function POST({ request }) {
 			return json({
 				message: 'Sensordaten wurden bereits gespeichert'
 			});
-		}
-
-		if (error.code === 'ER_NO_REFERENCED_ROW_2') {
-			return json(
-				{ message: 'Gerät nicht gefunden' },
-				{ status: 400 }
-			);
 		}
 
 		console.error('Fehler beim Speichern der Sensordaten:', error);
