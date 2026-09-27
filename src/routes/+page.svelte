@@ -8,4 +8,5 @@
 <p>Temperatur: {data.sensorData.temperature} °C</p>
 <p>Luftfeuchtigkeit: {data.sensorData.humidity} %</p>
 <p>Bodenfeuchtigkeit: {data.sensorData.soilMoisture} %</p>
+<p>Bodentemperatur: {data.sensorData.soilTemperature} °C</p>
 <p>Licht: {data.sensorData.light} lux</p>
