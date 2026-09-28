@@ -1,12 +1,17 @@
 export async function load({ fetch }) {
-	const sensorResponse = await fetch('/api/sensors');
-	const sensorData = await sensorResponse.json();
-
-	const historyResponse = await fetch('/api/sensors/history');
-	const sensorHistory = await historyResponse.json();
+	const response = await fetch('/api/v1/telemetry');
+	const telemetry = await response.json();
 
 	return {
-		sensorData,
-		sensorHistory
+		sensorData: {
+			measuredAt: telemetry.measured_at,
+			temperature: telemetry.air_temp_c,
+			humidity: telemetry.air_humidity_pct,
+			soilMoisture: telemetry.soil_moisture_pct,
+			soilTemperature: telemetry.soil_temp_c,
+			light: telemetry.light_lux,
+			dli: telemetry.dli_est_mol,
+			sensorHealth: telemetry.sensor_health
+		}
 	};
 }
