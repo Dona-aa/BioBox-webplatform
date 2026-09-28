@@ -1,6 +1,169 @@
 import { json } from '@sveltejs/kit';
 import { db } from '$lib/server/db.js';
 
+function formatStatus(row) {
+	return {
+		device_id: row.device_code,
+		reported_at: new Date(row.reported_at).toISOString(),
+		mode: row.mode,
+		estop_active: Boolean(row.estop_active),
+		led_duty_pct: Number(row.led_duty_pct),
+		heater_duty_pct: Number(row.heater_duty_pct),
+		fan_duty_pct: Number(row.fan_duty_pct),
+
+		fan_rpm:
+			row.fan_rpm === null
+				? null
+				: Number(row.fan_rpm),
+
+		plate_temp_c:
+			row.plate_temp_c === null
+				? null
+				: Number(row.plate_temp_c),
+
+		fin_temp_c:
+			row.fin_temp_c === null
+				? null
+				: Number(row.fin_temp_c),
+
+		pump_water_ms: Number(row.pump_water_ms),
+		pump_nutrient_ms: Number(row.pump_nutrient_ms),
+		heartbeat_ok: Boolean(row.heartbeat_ok),
+		faults: row.faults,
+		firmware_version: row.firmware_version
+	};
+}
+
+export async function GET({ url }) {
+	try {
+		const from = url.searchParams.get('from');
+		const to = url.searchParams.get('to');
+
+		// No range -> newest actuator state
+		if (!from && !to) {
+			const [rows] = await db.execute(
+				`SELECT
+					d.device_code,
+					a.reported_at,
+					a.mode,
+					a.estop_active,
+					a.led_duty_pct,
+					a.heater_duty_pct,
+					a.fan_duty_pct,
+					a.fan_rpm,
+					a.plate_temp_c,
+					a.fin_temp_c,
+					a.pump_water_ms,
+					a.pump_nutrient_ms,
+					a.heartbeat_ok,
+					a.faults,
+					a.firmware_version
+				 FROM actuator_states a
+				 JOIN devices d ON d.id = a.device_id
+				 ORDER BY a.reported_at DESC
+				 LIMIT 1`
+			);
+
+			if (rows.length === 0) {
+				return json(
+					{ message: 'Keine Statusdaten vorhanden' },
+					{ status: 404 }
+				);
+			}
+
+			return json(formatStatus(rows[0]));
+		}
+
+		if (!from || !to) {
+			return json(
+				{ message: 'from und to müssen gemeinsam angegeben werden' },
+				{ status: 422 }
+			);
+		}
+
+		const fromDate = new Date(from);
+		const toDate = new Date(to);
+
+		if (
+			Number.isNaN(fromDate.getTime()) ||
+			Number.isNaN(toDate.getTime()) ||
+			fromDate > toDate
+		) {
+			return json(
+				{ message: 'Ungültiger Zeitraum' },
+				{ status: 422 }
+			);
+		}
+
+		// Last known state before the requested interval
+		const [beforeRows] = await db.execute(
+			`SELECT
+				d.device_code,
+				a.reported_at,
+				a.mode,
+				a.estop_active,
+				a.led_duty_pct,
+				a.heater_duty_pct,
+				a.fan_duty_pct,
+				a.fan_rpm,
+				a.plate_temp_c,
+				a.fin_temp_c,
+				a.pump_water_ms,
+				a.pump_nutrient_ms,
+				a.heartbeat_ok,
+				a.faults,
+				a.firmware_version
+			 FROM actuator_states a
+			 JOIN devices d ON d.id = a.device_id
+			 WHERE a.reported_at < ?
+			 ORDER BY a.reported_at DESC
+			 LIMIT 1`,
+			[fromDate]
+		);
+
+		// All state changes inside the interval
+		const [rangeRows] = await db.execute(
+			`SELECT
+				d.device_code,
+				a.reported_at,
+				a.mode,
+				a.estop_active,
+				a.led_duty_pct,
+				a.heater_duty_pct,
+				a.fan_duty_pct,
+				a.fan_rpm,
+				a.plate_temp_c,
+				a.fin_temp_c,
+				a.pump_water_ms,
+				a.pump_nutrient_ms,
+				a.heartbeat_ok,
+				a.faults,
+				a.firmware_version
+			 FROM actuator_states a
+			 JOIN devices d ON d.id = a.device_id
+			 WHERE a.reported_at BETWEEN ? AND ?
+			 ORDER BY a.reported_at ASC`,
+			[fromDate, toDate]
+		);
+
+		return json({
+			state_before_from:
+				beforeRows.length === 0
+					? null
+					: formatStatus(beforeRows[0]),
+
+			states: rangeRows.map(formatStatus)
+		});
+	} catch (error) {
+		console.error('Fehler beim Laden der Statusdaten:', error);
+
+		return json(
+			{ message: 'Statusdaten konnten nicht geladen werden' },
+			{ status: 500 }
+		);
+	}
+}
+
 export async function POST({ request }) {
 	let data;
 
