@@ -58,48 +58,65 @@ export async function POST({ request }) {
 	}
 
 	// Check the structure and data types of the telemetry
-	if (
-		typeof data.device_id !== 'string' ||
-		data.device_id.length === 0 ||
-		data.device_id.length > 64 ||
-		typeof data.measured_at !== 'string' ||
-		typeof data.air_temp_c !== 'number' ||
-		typeof data.air_humidity_pct !== 'number' ||
-		typeof data.soil_moisture_pct !== 'number' ||
-		typeof data.soil_temp_c !== 'number' ||
-		typeof data.light_lux !== 'number' ||
-		(data.dli_est_mol !== null &&
-			typeof data.dli_est_mol !== 'number') ||
-		typeof data.sensor_health !== 'object' ||
-		data.sensor_health === null ||
-		Array.isArray(data.sensor_health)
-	) {
-		return json(
-			{ message: 'Ungültige Sensordaten' },
-			{ status: 422 }
-		);
-	}
+if (
+	typeof data.device_id !== 'string' ||
+	data.device_id.length === 0 ||
+	data.device_id.length > 64 ||
+	typeof data.measured_at !== 'string' ||
+
+	(data.air_temp_c !== null &&
+		typeof data.air_temp_c !== 'number') ||
+
+	(data.air_humidity_pct !== null &&
+		typeof data.air_humidity_pct !== 'number') ||
+
+	(data.soil_moisture_pct !== null &&
+		typeof data.soil_moisture_pct !== 'number') ||
+
+	(data.soil_temp_c !== null &&
+		typeof data.soil_temp_c !== 'number') ||
+
+	(data.light_lux !== null &&
+		typeof data.light_lux !== 'number') ||
+
+	(data.dli_est_mol !== null &&
+		typeof data.dli_est_mol !== 'number') ||
+
+	typeof data.sensor_health !== 'object' ||
+	data.sensor_health === null ||
+	Array.isArray(data.sensor_health)
+) {
+	return json(
+		{ message: 'Ungültige Sensordaten' },
+		{ status: 422 }
+	);
+}
 
 	// Check Grid's defined measurement ranges
 	if (
-		data.air_temp_c < -10 ||
-		data.air_temp_c > 60 ||
-		data.air_humidity_pct < 0 ||
-		data.air_humidity_pct > 100 ||
-		data.soil_moisture_pct < 0 ||
-		data.soil_moisture_pct > 100 ||
-		data.soil_temp_c < -10 ||
-		data.soil_temp_c > 60 ||
-		data.light_lux < 0 ||
-		data.light_lux > 200000 ||
-		(data.dli_est_mol !== null &&
-			(data.dli_est_mol < 0 || data.dli_est_mol > 80))
-	) {
-		return json(
-			{ message: 'Sensordaten außerhalb des gültigen Bereichs' },
-			{ status: 422 }
-		);
-	}
+	(data.air_temp_c !== null &&
+		(data.air_temp_c < -10 || data.air_temp_c > 60)) ||
+
+	(data.air_humidity_pct !== null &&
+		(data.air_humidity_pct < 0 || data.air_humidity_pct > 100)) ||
+
+	(data.soil_moisture_pct !== null &&
+		(data.soil_moisture_pct < 0 || data.soil_moisture_pct > 100)) ||
+
+	(data.soil_temp_c !== null &&
+		(data.soil_temp_c < -10 || data.soil_temp_c > 60)) ||
+
+	(data.light_lux !== null &&
+		(data.light_lux < 0 || data.light_lux > 200000)) ||
+
+	(data.dli_est_mol !== null &&
+		(data.dli_est_mol < 0 || data.dli_est_mol > 80))
+) {
+	return json(
+		{ message: 'Sensordaten außerhalb des gültigen Bereichs' },
+		{ status: 422 }
+	);
+}
 
 	const allowedSensorStates = [
 		'ok',
