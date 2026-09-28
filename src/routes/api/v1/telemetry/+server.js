@@ -1,17 +1,108 @@
 import { json } from '@sveltejs/kit';
 import { db } from '$lib/server/db.js';
 
-export async function GET() {
+export async function GET({ url }) {
 	try {
+		const from = url.searchParams.get('from');
+		const to = url.searchParams.get('to');
+
+		// Range query
+		if (from || to) {
+			if (!from || !to) {
+				return json(
+					{ message: 'from und to müssen gemeinsam angegeben werden' },
+					{ status: 422 }
+				);
+			}
+
+			const fromDate = new Date(from);
+			const toDate = new Date(to);
+
+			if (
+				Number.isNaN(fromDate.getTime()) ||
+				Number.isNaN(toDate.getTime()) ||
+				fromDate > toDate
+			) {
+				return json(
+					{ message: 'Ungültiger Zeitraum' },
+					{ status: 422 }
+				);
+			}
+
+			const [rows] = await db.execute(
+				`SELECT
+					d.device_code,
+					sm.measured_at,
+					sm.air_temp_c,
+					sm.air_humidity_pct,
+					sm.soil_moisture_pct,
+					sm.soil_temp_c,
+					sm.light_lux,
+					sm.dli_est_mol,
+					sm.sensor_health
+				 FROM sensor_measurements sm
+				 JOIN devices d ON d.id = sm.device_id
+				 WHERE sm.measured_at BETWEEN ? AND ?
+				 ORDER BY sm.measured_at ASC`,
+				[fromDate, toDate]
+			);
+
+			return json(
+				rows.map((row) => ({
+					device_id: row.device_code,
+					measured_at: new Date(row.measured_at).toISOString(),
+
+					air_temp_c:
+						row.air_temp_c === null
+							? null
+							: Number(row.air_temp_c),
+
+					air_humidity_pct:
+						row.air_humidity_pct === null
+							? null
+							: Number(row.air_humidity_pct),
+
+					soil_moisture_pct:
+						row.soil_moisture_pct === null
+							? null
+							: Number(row.soil_moisture_pct),
+
+					soil_temp_c:
+						row.soil_temp_c === null
+							? null
+							: Number(row.soil_temp_c),
+
+					light_lux:
+						row.light_lux === null
+							? null
+							: Number(row.light_lux),
+
+					dli_est_mol:
+						row.dli_est_mol === null
+							? null
+							: Number(row.dli_est_mol),
+
+					sensor_health: row.sensor_health
+				}))
+			);
+		}
+
+		// No from/to -> return newest measurement
 		const [rows] = await db.execute(
-			`SELECT measured_at, air_temp_c, air_humidity_pct,
-			        soil_moisture_pct, soil_temp_c, light_lux,
-			        dli_est_mol, sensor_health
-			 FROM sensor_measurements
-			 WHERE device_id = ?
-			 ORDER BY measured_at DESC
-			 LIMIT 1`,
-			[1]
+			`SELECT
+				d.device_code,
+				sm.measured_at,
+				sm.air_temp_c,
+				sm.air_humidity_pct,
+				sm.soil_moisture_pct,
+				sm.soil_temp_c,
+				sm.light_lux,
+				sm.dli_est_mol,
+				sm.sensor_health
+			 FROM sensor_measurements sm
+			 JOIN devices d ON d.id = sm.device_id
+			 ORDER BY sm.measured_at DESC
+			 LIMIT 1`
 		);
 
 		if (rows.length === 0) {
@@ -24,45 +115,46 @@ export async function GET() {
 		const row = rows[0];
 
 		return json({
-	measuredAt: new Date(row.measured_at).toISOString(),
+			device_id: row.device_code,
+			measured_at: new Date(row.measured_at).toISOString(),
 
-	temperature:
-		row.air_temp_c === null
-			? null
-			: Number(row.air_temp_c),
+			air_temp_c:
+				row.air_temp_c === null
+					? null
+					: Number(row.air_temp_c),
 
-	humidity:
-		row.air_humidity_pct === null
-			? null
-			: Number(row.air_humidity_pct),
+			air_humidity_pct:
+				row.air_humidity_pct === null
+					? null
+					: Number(row.air_humidity_pct),
 
-	soilMoisture:
-		row.soil_moisture_pct === null
-			? null
-			: Number(row.soil_moisture_pct),
+			soil_moisture_pct:
+				row.soil_moisture_pct === null
+					? null
+					: Number(row.soil_moisture_pct),
 
-	soilTemperature:
-		row.soil_temp_c === null
-			? null
-			: Number(row.soil_temp_c),
+			soil_temp_c:
+				row.soil_temp_c === null
+					? null
+					: Number(row.soil_temp_c),
 
-	light:
-		row.light_lux === null
-			? null
-			: Number(row.light_lux),
+			light_lux:
+				row.light_lux === null
+					? null
+					: Number(row.light_lux),
 
-	dli:
-		row.dli_est_mol === null
-			? null
-			: Number(row.dli_est_mol),
+			dli_est_mol:
+				row.dli_est_mol === null
+					? null
+					: Number(row.dli_est_mol),
 
-	sensorHealth: row.sensor_health
-});
+			sensor_health: row.sensor_health
+		});
 	} catch (error) {
-		console.error('Fehler beim Laden der Sensordaten:', error);
+		console.error('Fehler beim Laden der Telemetriedaten:', error);
 
 		return json(
-			{ message: 'Sensordaten konnten nicht geladen werden' },
+			{ message: 'Telemetriedaten konnten nicht geladen werden' },
 			{ status: 500 }
 		);
 	}
