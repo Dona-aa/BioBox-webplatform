@@ -16,6 +16,22 @@
 
 			const telemetry = await response.json();
 
+			if (telemetry.message === 'Keine Sensordaten vorhanden') {
+				sensorData = {
+				measuredAt: null,
+				temperature: null,
+				humidity: null,
+				soilMoisture: null,
+				soilTemperature: null,
+				light: null,
+				dli: null,
+    			sensorHealth: null
+			};
+
+			connectionStatus = 'Verbunden';
+			return;
+		}
+
 			sensorData = {
 				measuredAt: telemetry.measured_at,
 				temperature: telemetry.air_temp_c,
@@ -45,7 +61,12 @@
 
 <p>Verbindung: {connectionStatus}</p>
 
-<p>Messzeit: {sensorData.measuredAt}</p>
+<p>
+  Messzeit:
+  {sensorData.measuredAt === null
+    ? 'Keine Daten'
+    : sensorData.measuredAt}
+</p>
 
 <p>
 	Temperatur:
