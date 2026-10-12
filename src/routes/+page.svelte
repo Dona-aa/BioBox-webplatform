@@ -170,3 +170,87 @@
 
     </div>
 </section>
+
+<section class="px-10 py-20">
+    <div class="mx-auto max-w-7xl">
+
+        <p class="text-center text-sm font-semibold text-green-700">
+            // SO FUNKTIONIERT'S
+        </p>
+
+        <h2 class="mt-4 text-center text-4xl font-semibold text-green-950">
+            Von der Messung zur Anzeige
+        </h2>
+
+        <div class="mt-12">
+
+            <div class="flex items-center justify-between border-t border-green-200 py-6">
+                <div class="flex gap-5">
+                    <span class="font-semibold text-green-950">01</span>
+                    <p class="font-semibold text-green-950">
+                        Sensoren messen
+                    </p>
+                </div>
+
+                <p class="text-green-700">
+                    Die BioBox erfasst Werte in ihrer Umgebung.
+                </p>
+            </div>
+
+            <div class="flex items-center justify-between border-t border-green-200 py-6">
+                <div class="flex gap-5">
+                    <span class="font-semibold text-green-950">02</span>
+                    <p class="font-semibold text-green-950">
+                        Daten werden gespeichert
+                    </p>
+                </div>
+
+                <p class="text-green-700">
+                    Das Backend speichert alles in der Datenbank.
+                </p>
+            </div>
+
+            <div class="flex items-center justify-between border-y border-green-200 py-6">
+                <div class="flex gap-5">
+                    <span class="font-semibold text-green-950">03</span>
+                    <p class="font-semibold text-green-950">
+                        Du siehst es live
+                    </p>
+                </div>
+
+                <p class="text-green-700">
+                    Die Plattform aktualisiert sich von selbst.
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+<section class="px-10 pb-20">
+    <div class="mx-auto max-w-7xl rounded-2xl bg-lime-100 px-8 py-14 text-center">
+        <h2 class="text-4xl font-semibold text-green-950">
+            Bereit für deine BioBox?
+        </h2>
+
+        <a
+            href="/register"
+            class="mt-8 inline-block rounded-full bg-green-900 px-6 py-3 font-semibold text-white hover:bg-green-800"
+        >
+            Konto erstellen →
+        </a>
+    </div>
+</section>
+
+<footer class="border-t border-green-100 px-10 py-8">
+    <div class="mx-auto flex max-w-7xl items-center justify-between">
+        <p class="font-semibold text-green-950">
+            BioBox
+        </p>
+
+        <p class="text-sm text-green-700">
+            © 2026 BioBox
+        </p>
+    </div>
+</footer>
