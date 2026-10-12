@@ -94,3 +94,79 @@
 
     </section>
 </main>
+
+<section id="funktionen" class="bg-green-900 px-10 py-16 text-white">
+    <div class="mx-auto grid max-w-7xl gap-12 lg:grid-cols-3">
+
+        <div>
+            <p class="text-sm font-semibold text-lime-300">
+                // FUNKTIONEN
+            </p>
+
+            <h2 class="mt-4 text-4xl font-semibold">
+                Das kann die<br />
+                BioBox-Plattform
+            </h2>
+        </div>
+
+        <div class="min-h-[260px] rounded-xl bg-green-100">
+        </div>
+
+        <div class="flex flex-col gap-6">
+
+            <div class="flex gap-4">
+                <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-lime-300 text-green-950">
+                    1
+                </div>
+
+                <div>
+                    <h3 class="font-semibold">Live-Werte</h3>
+                    <p class="text-sm text-green-100">
+                        Neue Messwerte erscheinen automatisch.
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex gap-4">
+                <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-lime-300 text-green-950">
+                    2
+                </div>
+
+                <div>
+                    <h3 class="font-semibold">Verlauf</h3>
+                    <p class="text-sm text-green-100">
+                        Diagramme zeigen Veränderungen über Zeit.
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex gap-4">
+                <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-lime-300 text-green-950">
+                    3
+                </div>
+
+                <div>
+                    <h3 class="font-semibold">Statusanzeigen</h3>
+                    <p class="text-sm text-green-100">
+                        Aktiv, inaktiv oder Warnung auf einen Blick.
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex gap-4">
+                <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-lime-300 text-green-950">
+                    4
+                </div>
+
+                <div>
+                    <h3 class="font-semibold">Eigenes Konto</h3>
+                    <p class="text-sm text-green-100">
+                        Anmelden, Rollen und Zugriffsrechte.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</section>
