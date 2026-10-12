@@ -57,55 +57,97 @@
 	});
 </script>
 
-<h1>BioBox</h1>
+<div class="min-h-screen bg-white">
+    <div class="min-h-screen px-9 py-6">
+        <header class="flex items-center justify-between">
+            <a href="/" class="text-2xl font-bold text-green-900">
+                BioBox
+            </a>
 
-<p>Verbindung: {connectionStatus}</p>
+            <nav class="flex items-center gap-4">
+                <a
+                    href="/dashboard"
+                    class="rounded-full bg-green-900 px-6 py-3 font-semibold text-white"
+                >
+                    Übersicht
+                </a>
 
-<p>
-  Messzeit:
-  {sensorData.measuredAt === null
-    ? 'Keine Daten'
-    : sensorData.measuredAt}
-</p>
+                <a href="/verlauf" class="px-4 py-3 text-green-950">
+                    Verlauf
+                </a>
 
-<p>
-	Temperatur:
-	{sensorData.temperature === null
-		? 'Keine Daten'
-		: `${sensorData.temperature} °C`}
-</p>
+                <a href="/geraete" class="px-4 py-3 text-green-950">
+                    Geräte
+                </a>
 
-<p>
-	Luftfeuchtigkeit:
-	{sensorData.humidity === null
-		? 'Keine Daten'
-		: `${sensorData.humidity} %`}
-</p>
+                <a href="/benutzer" class="px-4 py-3 text-green-950">
+                    Benutzer
+                </a>
+            </nav>
 
-<p>
-	Bodenfeuchtigkeit:
-	{sensorData.soilMoisture === null
-		? 'Keine Daten'
-		: `${sensorData.soilMoisture} %`}
-</p>
+            <div class="flex h-11 w-11 items-center justify-center rounded-full bg-lime-300 font-semibold text-green-900">
+                EP
+            </div>
+        </header>
 
-<p>
-	Bodentemperatur:
-	{sensorData.soilTemperature === null
-		? 'Keine Daten'
-		: `${sensorData.soilTemperature} °C`}
-</p>
+        <main class="mt-10">
+            <p class="text-sm font-semibold text-green-700">
+                // ÜBERSICHT
+            </p>
 
-<p>
-	Licht:
-	{sensorData.light === null
-		? 'Keine Daten'
-		: `${sensorData.light} lux`}
-</p>
+            <h1 class="mt-3 text-5xl font-semibold text-green-950">
+                Guten Morgen.
+            </h1>
 
-<p>
-	DLI:
-	{sensorData.dli === null
-		? 'Keine Daten'
-		: `${sensorData.dli} mol/m²/Tag`}
-</p>
+            <div class="mt-6 rounded-xl bg-yellow-100 px-5 py-4 text-yellow-900">
+                ▲ Bodenfeuchte ist niedrig. Bald gießen empfohlen.
+            </div>
+
+            <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+
+                <div class="rounded-2xl bg-lime-100 p-6">
+                    <p class="text-sm text-green-700">Temperatur</p>
+
+                    <p class="mt-2 text-5xl font-semibold text-green-950">
+                        {sensorData.temperature === null
+                            ? 'Keine Daten'
+                            : `${sensorData.temperature} °C`}
+                    </p>
+                </div>
+
+                <div class="rounded-2xl bg-lime-100 p-6">
+                    <p class="text-sm text-green-700">Luftfeuchtigkeit</p>
+
+                    <p class="mt-2 text-5xl font-semibold text-green-950">
+                        {sensorData.humidity === null
+                            ? 'Keine Daten'
+                            : `${sensorData.humidity} %`}
+                    </p>
+                </div>
+
+                <div class="rounded-2xl bg-green-900 p-6 text-white">
+                    <p class="text-sm text-green-100">Bodenfeuchte</p>
+
+                    <p class="mt-2 text-5xl font-semibold">
+                        {sensorData.soilMoisture === null
+                            ? 'Keine Daten'
+                            : `${sensorData.soilMoisture} %`}
+                    </p>
+                </div>
+
+                <div class="rounded-2xl bg-lime-100 p-6">
+                    <p class="text-sm text-green-700">Licht</p>
+
+                    <p class="mt-2 text-5xl font-semibold text-green-950">
+                        {sensorData.light === null
+                            ? 'Keine Daten'
+                            : `${sensorData.light} lux`}
+                    </p>
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+</div>
