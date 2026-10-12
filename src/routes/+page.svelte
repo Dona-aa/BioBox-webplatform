@@ -74,8 +74,23 @@
 
         </div>
 
-        <div class="min-h-[420px] rounded-2xl bg-green-100">
-        </div>
+        <div class="relative min-h-[420px] overflow-hidden rounded-2xl bg-green-100">
+
+			<div class="absolute bottom-0 left-0 h-40 w-full rounded-t-[50%] bg-green-700"></div>
+
+			<div class="absolute bottom-16 left-0 h-40 w-full rounded-t-[50%] bg-green-500"></div>
+
+			<div class="absolute bottom-32 left-0 h-40 w-full rounded-t-[50%] bg-green-300"></div>
+
+			<div class="absolute right-12 top-10 h-24 w-24 rounded-full bg-lime-50"></div>
+
+			<div class="absolute bottom-5 right-5 rounded-xl bg-white p-4 shadow-sm">
+				<p class="text-sm text-green-700">Temperatur</p>
+				<p class="text-2xl font-semibold text-green-950">22,4 °C</p>
+				<p class="text-sm text-green-700">Im Zielbereich</p>
+			</div>
+
+		</div>
 
     </section>
 </main>
