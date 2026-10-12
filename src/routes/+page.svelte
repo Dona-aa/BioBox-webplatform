@@ -1,4 +1,4 @@
-<header class="mx-auto flex max-w-7xl items-center justify-between px-10 py-7">
+<header class="flex w-full items-center justify-between px-9 py-7">
     <a href="/" class="text-3xl font-bold text-green-900">
         BioBox
     </a>
@@ -29,7 +29,7 @@
     </a>
 </header>
 
-<main class="mx-auto max-w-7xl px-10 py-16">
+<main class="w-full px-9 py-16">
     <section class="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
 
         <div>
@@ -96,7 +96,7 @@
 </main>
 
 <section id="funktionen" class="bg-green-900 px-10 py-16 text-white">
-    <div class="mx-auto grid max-w-7xl gap-12 lg:grid-cols-3">
+    <div class="grid w-full gap-12 lg:grid-cols-3">
 
         <div>
             <p class="text-sm font-semibold text-lime-300">
@@ -172,7 +172,7 @@
 </section>
 
 <section class="px-10 py-20">
-    <div class="mx-auto max-w-7xl">
+    <div class="w-full">
 
         <p class="text-center text-sm font-semibold text-green-700">
             // SO FUNKTIONIERT'S
@@ -229,7 +229,7 @@
 </section>
 
 <section class="px-10 pb-20">
-    <div class="mx-auto max-w-7xl rounded-2xl bg-lime-100 px-8 py-14 text-center">
+    <div class="w-full rounded-2xl bg-lime-100 px-8 py-14 text-center">
         <h2 class="text-4xl font-semibold text-green-950">
             Bereit für deine BioBox?
         </h2>
@@ -244,7 +244,7 @@
 </section>
 
 <footer class="border-t border-green-100 px-10 py-8">
-    <div class="mx-auto flex max-w-7xl items-center justify-between">
+    <div class="flex w-full items-center justify-between">
         <p class="font-semibold text-green-950">
             BioBox
         </p>
