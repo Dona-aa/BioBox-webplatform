@@ -1,111 +1,81 @@
-<script>
-	import { onMount } from 'svelte';
+<header class="mx-auto flex max-w-7xl items-center justify-between px-10 py-7">
+    <a href="/" class="text-3xl font-bold text-green-900">
+        BioBox
+    </a>
 
-	let { data } = $props();
+    <nav class="flex items-center gap-10">
+        <a href="/" class="text-green-950 hover:text-green-700">
+            Start
+        </a>
 
-	let sensorData = $state(data.sensorData);
-	let connectionStatus = $state('Verbunden');
+        <a href="#funktionen" class="text-green-950 hover:text-green-700">
+            Funktionen
+        </a>
 
-	async function updateSensorData() {
-		try {
-			const response = await fetch('/api/v1/telemetry');
+        <a href="/dashboard" class="text-green-950 hover:text-green-700">
+            Dashboard
+        </a>
 
-			if (!response.ok) {
-				throw new Error('Telemetriedaten konnten nicht geladen werden');
-			}
+        <a href="#ueber-uns" class="text-green-950 hover:text-green-700">
+            Über uns
+        </a>
+    </nav>
 
-			const telemetry = await response.json();
+    <a
+        href="/login"
+        class="rounded-full border border-green-900 px-6 py-3 text-green-900 hover:bg-green-50"
+    >
+        Anmelden
+    </a>
+</header>
 
-			if (telemetry.message === 'Keine Sensordaten vorhanden') {
-				sensorData = {
-				measuredAt: null,
-				temperature: null,
-				humidity: null,
-				soilMoisture: null,
-				soilTemperature: null,
-				light: null,
-				dli: null,
-    			sensorHealth: null
-			};
+<main class="mx-auto max-w-7xl px-10 py-16">
+    <section class="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
 
-			connectionStatus = 'Verbunden';
-			return;
-		}
+        <div>
+            <p class="inline-block rounded-lg bg-lime-100 px-3 py-2 text-sm text-green-900">
+                Deine BioBox, live
+            </p>
 
-			sensorData = {
-				measuredAt: telemetry.measured_at,
-				temperature: telemetry.air_temp_c,
-				humidity: telemetry.air_humidity_pct,
-				soilMoisture: telemetry.soil_moisture_pct,
-				soilTemperature: telemetry.soil_temp_c,
-				light: telemetry.light_lux,
-				dli: telemetry.dli_est_mol,
-				sensorHealth: telemetry.sensor_health
-			};
+            <h1 class="mt-6 text-6xl font-semibold leading-tight text-green-950">
+                Alles über deine<br />
+                BioBox. Auf einen<br />
+                Blick.
+            </h1>
 
-			connectionStatus = 'Verbunden';
-		} catch (error) {
-			console.error(error);
-			connectionStatus = 'Verbindungsproblem';
-		}
-	}
+            <p class="mt-6 max-w-xl text-lg leading-8 text-green-800">
+                Sieh Temperatur, Feuchtigkeit und Zustand deiner BioBox
+                in Echtzeit, ganz ohne Seite neu zu laden.
+            </p>
 
-	onMount(() => {
-		const interval = setInterval(updateSensorData, 5000);
+            <a
+                href="/dashboard"
+                class="mt-8 inline-block rounded-full bg-green-900 px-6 py-3 font-semibold text-white hover:bg-green-800"
+            >
+                Jetzt starten →
+            </a>
 
-		return () => clearInterval(interval);
-	});
-</script>
+			<div class="mt-10 grid max-w-lg grid-cols-3 gap-3">
+				<div class="rounded-xl bg-lime-100 p-4">
+					<p class="text-3xl font-semibold text-green-950">Live</p>
+					<p class="mt-1 text-sm text-green-800">Messwerte</p>
+				</div>
 
-<h1>BioBox</h1>
+				<div class="rounded-xl bg-lime-100 p-4">
+					<p class="text-3xl font-semibold text-green-950">24 Std.</p>
+					<p class="mt-1 text-sm text-green-800">Verlauf</p>
+				</div>
 
-<p>Verbindung: {connectionStatus}</p>
+				<div class="rounded-xl bg-lime-100 p-4">
+					<p class="text-3xl font-semibold text-green-950">4</p>
+					<p class="mt-1 text-sm text-green-800">Sensoren</p>
+				</div>
+			</div>
 
-<p>
-  Messzeit:
-  {sensorData.measuredAt === null
-    ? 'Keine Daten'
-    : sensorData.measuredAt}
-</p>
+        </div>
 
-<p>
-	Temperatur:
-	{sensorData.temperature === null
-		? 'Keine Daten'
-		: `${sensorData.temperature} °C`}
-</p>
+        <div class="min-h-[420px] rounded-2xl bg-green-100">
+        </div>
 
-<p>
-	Luftfeuchtigkeit:
-	{sensorData.humidity === null
-		? 'Keine Daten'
-		: `${sensorData.humidity} %`}
-</p>
-
-<p>
-	Bodenfeuchtigkeit:
-	{sensorData.soilMoisture === null
-		? 'Keine Daten'
-		: `${sensorData.soilMoisture} %`}
-</p>
-
-<p>
-	Bodentemperatur:
-	{sensorData.soilTemperature === null
-		? 'Keine Daten'
-		: `${sensorData.soilTemperature} °C`}
-</p>
-
-<p>
-	Licht:
-	{sensorData.light === null
-		? 'Keine Daten'
-		: `${sensorData.light} lux`}
-</p>
-
-<p>
-	DLI:
-	{sensorData.dli === null
-		? 'Keine Daten'
-		: `${sensorData.dli} mol/m²/Tag`}
-</p>
+    </section>
+</main>
