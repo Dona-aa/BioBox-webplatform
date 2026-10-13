@@ -1,3 +1,7 @@
+<script>
+	let { form } = $props();
+</script>
+
 <div class="grid min-h-screen lg:grid-cols-2">
 
 	<div class="flex min-h-screen flex-col">
@@ -31,7 +35,7 @@
 				Anmelden
 			</h2>
 
-			<form class="mt-6">
+			<form method="POST" class="mt-6">
 
 				<label
 					for="email"
@@ -71,6 +75,18 @@
 				</button>
 
 			</form>
+
+			{#if form?.error}
+				<p class="mt-4 text-sm font-semibold text-red-700">
+					{form.error}
+				</p>
+			{/if}
+
+			{#if form?.success}
+				<p class="mt-4 text-sm font-semibold text-green-700">
+					Anmeldung erfolgreich.
+				</p>
+			{/if}
 
 			<p class="mt-5 text-sm text-green-800">
 				Noch kein Konto?
