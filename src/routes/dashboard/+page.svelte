@@ -87,11 +87,22 @@
 				</a>
 			</nav>
 
-			<div
-				class="flex h-11 w-11 items-center justify-center rounded-full bg-lime-300 font-semibold text-green-900"
-			>
-				EP
-			</div>
+			<form method="POST" action="/logout">
+				<button
+					type="submit"
+					class="flex items-center gap-3 text-green-950"
+				>
+					<span
+						class="flex h-11 w-11 items-center justify-center rounded-full bg-lime-300 font-semibold text-green-900"
+					>
+						EP
+					</span>
+
+					<span class="text-sm font-semibold">
+						Abmelden
+					</span>
+				</button>
+			</form>
 		</header>
 
 		<main class="mt-10">
