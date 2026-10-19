@@ -89,70 +89,97 @@
 
 		<div class="mt-5 flex items-center justify-between">
 
+			<!-- Messwert auswählen -->
 			<div class="flex gap-2">
 
-				<button
-					class="rounded-full bg-green-900 px-5 py-3 font-semibold text-white"
+				<a
+					href={`/verlauf?metric=temperature&period=${data.period}`}
+					class={data.metric === 'temperature'
+						? 'rounded-full bg-green-900 px-5 py-3 font-semibold text-white'
+						: 'rounded-full bg-lime-100 px-5 py-3 font-semibold text-green-900'}
 				>
 					Temperatur
-				</button>
+				</a>
 
-				<button
-					class="rounded-full bg-lime-100 px-5 py-3 font-semibold text-green-900"
+				<a
+					href={`/verlauf?metric=humidity&period=${data.period}`}
+					class={data.metric === 'humidity'
+						? 'rounded-full bg-green-900 px-5 py-3 font-semibold text-white'
+						: 'rounded-full bg-lime-100 px-5 py-3 font-semibold text-green-900'}
 				>
 					Luftfeuchtigkeit
-				</button>
+				</a>
 
-				<button
-					class="rounded-full bg-lime-100 px-5 py-3 font-semibold text-green-900"
+				<a
+					href={`/verlauf?metric=soilMoisture&period=${data.period}`}
+					class={data.metric === 'soilMoisture'
+						? 'rounded-full bg-green-900 px-5 py-3 font-semibold text-white'
+						: 'rounded-full bg-lime-100 px-5 py-3 font-semibold text-green-900'}
 				>
 					Bodenfeuchtigkeit
-				</button>
+				</a>
 
-				<button
-					class="rounded-full bg-lime-100 px-5 py-3 font-semibold text-green-900"
+				<a
+					href={`/verlauf?metric=soilTemperature&period=${data.period}`}
+					class={data.metric === 'soilTemperature'
+						? 'rounded-full bg-green-900 px-5 py-3 font-semibold text-white'
+						: 'rounded-full bg-lime-100 px-5 py-3 font-semibold text-green-900'}
 				>
 					Bodentemperatur
-				</button>
+				</a>
 
-				<button
-					class="rounded-full bg-lime-100 px-5 py-3 font-semibold text-green-900"
+				<a
+					href={`/verlauf?metric=light&period=${data.period}`}
+					class={data.metric === 'light'
+						? 'rounded-full bg-green-900 px-5 py-3 font-semibold text-white'
+						: 'rounded-full bg-lime-100 px-5 py-3 font-semibold text-green-900'}
 				>
 					Licht
-				</button>
+				</a>
 
 			</div>
 
 
+			<!-- Zeitraum auswählen -->
 			<div class="flex gap-2">
 
-				<button
-					class="rounded-full bg-lime-300 px-5 py-3 font-semibold text-green-950"
+				<a
+					href={`/verlauf?metric=${data.metric}&period=24h`}
+					class={data.period === '24h'
+						? 'rounded-full bg-lime-300 px-5 py-3 font-semibold text-green-950'
+						: 'rounded-full bg-lime-100 px-5 py-3 font-semibold text-green-900'}
 				>
 					24 Std.
-				</button>
+				</a>
 
-				<button
-					class="rounded-full bg-lime-100 px-5 py-3 font-semibold text-green-900"
+				<a
+					href={`/verlauf?metric=${data.metric}&period=7d`}
+					class={data.period === '7d'
+						? 'rounded-full bg-lime-300 px-5 py-3 font-semibold text-green-950'
+						: 'rounded-full bg-lime-100 px-5 py-3 font-semibold text-green-900'}
 				>
 					7 Tage
-				</button>
+				</a>
 
-				<button
-					class="rounded-full bg-lime-100 px-5 py-3 font-semibold text-green-900"
+				<a
+					href={`/verlauf?metric=${data.metric}&period=30d`}
+					class={data.period === '30d'
+						? 'rounded-full bg-lime-300 px-5 py-3 font-semibold text-green-950'
+						: 'rounded-full bg-lime-100 px-5 py-3 font-semibold text-green-900'}
 				>
 					30 Tage
-				</button>
+				</a>
 
 			</div>
 
 		</div>
 
 
+		<!-- Diagramm -->
 		<div class="mt-4 rounded-2xl bg-green-900 p-6 text-white">
 
 			<h2 class="text-2xl font-semibold">
-				Temperatur · letzte 24 Stunden
+				{data.label} · {data.periodLabel}
 			</h2>
 
 			<div class="mt-8 h-64 w-full">
@@ -181,19 +208,43 @@
 
 			</div>
 
-			<div class="mt-3 flex justify-between text-sm font-semibold">
 
-				<span>00:00</span>
-				<span>06:00</span>
-				<span>12:00</span>
-				<span>18:00</span>
-				<span>jetzt</span>
+			{#if data.period === '24h'}
 
-			</div>
+				<div class="mt-3 flex justify-between text-sm font-semibold">
+					<span>00:00</span>
+					<span>06:00</span>
+					<span>12:00</span>
+					<span>18:00</span>
+					<span>jetzt</span>
+				</div>
+
+			{:else if data.period === '7d'}
+
+				<div class="mt-3 flex justify-between text-sm font-semibold">
+					<span>vor 7 Tagen</span>
+					<span>vor 5 Tagen</span>
+					<span>vor 3 Tagen</span>
+					<span>gestern</span>
+					<span>jetzt</span>
+				</div>
+
+			{:else}
+
+				<div class="mt-3 flex justify-between text-sm font-semibold">
+					<span>vor 30 Tagen</span>
+					<span>vor 3 Wochen</span>
+					<span>vor 2 Wochen</span>
+					<span>vor 1 Woche</span>
+					<span>jetzt</span>
+				</div>
+
+			{/if}
 
 		</div>
 
 
+		<!-- Statistiken -->
 		<div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
 
 			<div class="rounded-2xl bg-lime-100 p-6">
@@ -205,7 +256,7 @@
 				<p class="mt-2 text-4xl font-semibold text-green-950">
 					{data.current === null
 						? 'Keine Daten'
-						: `${data.current.toFixed(1)} °C`}
+						: `${data.current.toFixed(1)} ${data.unit}`}
 				</p>
 
 			</div>
@@ -220,7 +271,7 @@
 				<p class="mt-2 text-4xl font-semibold text-green-950">
 					{data.minimum === null
 						? 'Keine Daten'
-						: `${data.minimum.toFixed(1)} °C`}
+						: `${data.minimum.toFixed(1)} ${data.unit}`}
 				</p>
 
 			</div>
@@ -235,7 +286,7 @@
 				<p class="mt-2 text-4xl font-semibold text-green-950">
 					{data.maximum === null
 						? 'Keine Daten'
-						: `${data.maximum.toFixed(1)} °C`}
+						: `${data.maximum.toFixed(1)} ${data.unit}`}
 				</p>
 
 			</div>
@@ -250,7 +301,7 @@
 				<p class="mt-2 text-4xl font-semibold text-green-950">
 					{data.average === null
 						? 'Keine Daten'
-						: `${data.average.toFixed(1)} °C`}
+						: `${data.average.toFixed(1)} ${data.unit}`}
 				</p>
 
 			</div>
