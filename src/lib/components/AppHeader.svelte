@@ -114,6 +114,12 @@
 
 					<form method="POST" action="/logout">
 
+						<input
+							type="hidden"
+							name="redirectTo"
+							value="login"
+						/>
+
 						<button
 							type="submit"
 							class="w-full rounded-xl px-4 py-3 text-left font-semibold text-green-900 hover:bg-lime-100"
@@ -124,6 +130,12 @@
 					</form>
 
 					<form method="POST" action="/logout">
+
+						<input
+							type="hidden"
+							name="redirectTo"
+							value="home"
+						/>
 
 						<button
 							type="submit"
