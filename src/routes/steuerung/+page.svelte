@@ -1,11 +1,33 @@
 <script>
+	import { onMount } from 'svelte';
+
 	let { data } = $props();
 
-	let status = data.status;
+	let status = $state(data.status);
 
-	let waterActive = status.pump_water_ms > 0;
-	let lightActive = status.led_duty_pct > 0;
-	let fanActive = status.fan_duty_pct > 0;
+	let waterActive = $state(status.pump_water_ms > 0);
+	let lightActive = $state(status.led_duty_pct > 0);
+	let fanActive = $state(status.fan_duty_pct > 0);
+
+	async function updateStatus() {
+		const response = await fetch('/api/v1/status');
+
+		if (!response.ok) {
+			return;
+		}
+
+		status = await response.json();
+
+		waterActive = status.pump_water_ms > 0;
+		lightActive = status.led_duty_pct > 0;
+		fanActive = status.fan_duty_pct > 0;
+	}
+
+	onMount(() => {
+		const interval = setInterval(updateStatus, 5000);
+
+		return () => clearInterval(interval);
+	});
 </script>
 
 <div class="min-h-screen bg-white px-9 py-6">
