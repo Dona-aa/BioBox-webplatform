@@ -1,9 +1,11 @@
 <script>
+	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 
 	let { active } = $props();
 
 	let profileOpen = $state(false);
+	let profileMenu;
 
 	let user = $derived(page.data.user);
 
@@ -28,6 +30,24 @@
 
 		return username.slice(0, 2).toUpperCase();
 	}
+
+	onMount(() => {
+		function handleClickOutside(event) {
+			if (
+				profileOpen &&
+				profileMenu &&
+				!profileMenu.contains(event.target)
+			) {
+				profileOpen = false;
+			}
+		}
+
+		document.addEventListener('click', handleClickOutside);
+
+		return () => {
+			document.removeEventListener('click', handleClickOutside);
+		};
+	});
 </script>
 
 <header class="flex items-center justify-between">
@@ -82,7 +102,7 @@
 
 	</nav>
 
-	<div class="relative">
+	<div class="relative" bind:this={profileMenu}>
 
 		<button
 			type="button"
