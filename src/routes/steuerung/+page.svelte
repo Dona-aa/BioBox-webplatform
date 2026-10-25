@@ -1,0 +1,281 @@
+<script>
+	let { data } = $props();
+
+	let status = data.status;
+
+	let waterActive = status.pump_water_ms > 0;
+	let lightActive = status.led_duty_pct > 0;
+	let fanActive = status.fan_duty_pct > 0;
+</script>
+
+<div class="min-h-screen bg-white px-9 py-6">
+
+	<header class="flex items-center justify-between">
+
+		<a href="/" class="text-2xl font-bold text-green-900">
+			BioBox
+		</a>
+
+		<nav class="flex items-center gap-2">
+
+			<a
+				href="/dashboard"
+				class="rounded-full px-4 py-3 font-semibold text-green-950"
+			>
+				Dashboard
+			</a>
+
+			<a
+				href="/live-daten"
+				class="rounded-full px-4 py-3 font-semibold text-green-950"
+			>
+				Live-Daten
+			</a>
+
+			<a
+				href="/verlauf"
+				class="rounded-full px-4 py-3 font-semibold text-green-950"
+			>
+				Verlauf
+			</a>
+
+			<a
+				href="/steuerung"
+				class="rounded-full bg-green-900 px-5 py-3 font-semibold text-white"
+			>
+				Steuerung
+			</a>
+
+			<a
+				href="/pflanzenanalyse"
+				class="rounded-full px-4 py-3 font-semibold text-green-950"
+			>
+				Pflanzenanalyse
+			</a>
+
+			<a
+				href="/warnungen"
+				class="rounded-full px-4 py-3 font-semibold text-green-950"
+			>
+				Warnungen
+			</a>
+
+		</nav>
+
+		<div
+			class="flex h-11 w-11 items-center justify-center rounded-full bg-lime-300 font-semibold text-green-900"
+		>
+			EP
+		</div>
+
+	</header>
+
+
+	<main class="mt-10">
+
+		<div class="flex items-end justify-between">
+
+			<div>
+
+				<p class="text-sm font-semibold text-green-800">
+					// STEUERUNG
+				</p>
+
+				<h1 class="mt-3 text-5xl font-semibold text-green-950">
+					Komponenten steuern
+				</h1>
+
+				<p class="mt-4 max-w-xl text-green-700">
+					Im Automatikmodus entscheidet die BioBox anhand der Messwerte.
+					Im manuellen Modus schaltest du selbst.
+				</p>
+
+			</div>
+
+
+			<div class="flex items-center gap-2">
+
+				<p class="mr-1 text-sm text-green-700">
+					Betriebsmodus
+				</p>
+
+				<button
+					class={status.mode === 'AUTO'
+						? 'rounded-full bg-green-900 px-5 py-3 font-semibold text-white'
+						: 'rounded-full bg-lime-100 px-5 py-3 font-semibold text-green-900'}
+				>
+					Automatisch
+				</button>
+
+				<button
+					class={status.mode === 'MANUAL'
+						? 'rounded-full bg-green-900 px-5 py-3 font-semibold text-white'
+						: 'rounded-full bg-lime-100 px-5 py-3 font-semibold text-green-900'}
+				>
+					Manuell
+				</button>
+
+			</div>
+
+		</div>
+
+
+		<div class="mt-6 space-y-4">
+
+			<!-- Bewässerung -->
+			<div
+				class="flex items-center justify-between rounded-2xl border border-green-200 px-6 py-5"
+			>
+
+				<div class="flex items-center gap-4">
+
+					<div
+						class={waterActive
+							? 'flex h-9 w-9 items-center justify-center rounded-full bg-lime-300 text-green-900'
+							: 'flex h-9 w-9 items-center justify-center rounded-full bg-lime-100 text-green-900'}
+					>
+						{waterActive ? '•' : '○'}
+					</div>
+
+					<div>
+						<h2 class="text-2xl font-semibold text-green-950">
+							Bewässerung
+						</h2>
+
+						<p class="text-sm text-green-700">
+							Status: {waterActive ? 'Aktiv' : 'Inaktiv'}
+						</p>
+					</div>
+
+				</div>
+
+
+				<div class="flex gap-2">
+
+					<button
+						class={waterActive
+							? 'rounded-full bg-green-900 px-5 py-3 font-semibold text-white'
+							: 'rounded-full bg-lime-100 px-5 py-3 font-semibold text-green-900'}
+					>
+						Ein
+					</button>
+
+					<button
+						class={!waterActive
+							? 'rounded-full bg-green-900 px-5 py-3 font-semibold text-white'
+							: 'rounded-full bg-lime-100 px-5 py-3 font-semibold text-green-900'}
+					>
+						Aus
+					</button>
+
+				</div>
+
+			</div>
+
+
+			<!-- Beleuchtung -->
+			<div
+				class="flex items-center justify-between rounded-2xl border border-green-200 px-6 py-5"
+			>
+
+				<div class="flex items-center gap-4">
+
+					<div
+						class={lightActive
+							? 'flex h-9 w-9 items-center justify-center rounded-full bg-lime-300 text-green-900'
+							: 'flex h-9 w-9 items-center justify-center rounded-full bg-lime-100 text-green-900'}
+					>
+						{lightActive ? '•' : '○'}
+					</div>
+
+					<div>
+						<h2 class="text-2xl font-semibold text-green-950">
+							Beleuchtung
+						</h2>
+
+						<p class="text-sm text-green-700">
+							Status: {lightActive ? 'Aktiv' : 'Inaktiv'}
+						</p>
+					</div>
+
+				</div>
+
+
+				<div class="flex gap-2">
+
+					<button
+						class={lightActive
+							? 'rounded-full bg-green-900 px-5 py-3 font-semibold text-white'
+							: 'rounded-full bg-lime-100 px-5 py-3 font-semibold text-green-900'}
+					>
+						Ein
+					</button>
+
+					<button
+						class={!lightActive
+							? 'rounded-full bg-green-900 px-5 py-3 font-semibold text-white'
+							: 'rounded-full bg-lime-100 px-5 py-3 font-semibold text-green-900'}
+					>
+						Aus
+					</button>
+
+				</div>
+
+			</div>
+
+
+			<!-- Lüftung -->
+			<div
+				class="flex items-center justify-between rounded-2xl border border-green-200 px-6 py-5"
+			>
+
+				<div class="flex items-center gap-4">
+
+					<div
+						class={fanActive
+							? 'flex h-9 w-9 items-center justify-center rounded-full bg-lime-300 text-green-900'
+							: 'flex h-9 w-9 items-center justify-center rounded-full bg-lime-100 text-green-900'}
+					>
+						{fanActive ? '•' : '○'}
+					</div>
+
+					<div>
+						<h2 class="text-2xl font-semibold text-green-950">
+							Lüftung
+						</h2>
+
+						<p class="text-sm text-green-700">
+							Status: {fanActive ? 'Aktiv' : 'Inaktiv'}
+						</p>
+					</div>
+
+				</div>
+
+
+				<div class="flex gap-2">
+
+					<button
+						class={fanActive
+							? 'rounded-full bg-green-900 px-5 py-3 font-semibold text-white'
+							: 'rounded-full bg-lime-100 px-5 py-3 font-semibold text-green-900'}
+					>
+						Ein
+					</button>
+
+					<button
+						class={!fanActive
+							? 'rounded-full bg-green-900 px-5 py-3 font-semibold text-white'
+							: 'rounded-full bg-lime-100 px-5 py-3 font-semibold text-green-900'}
+					>
+						Aus
+					</button>
+
+				</div>
+
+			</div>
+
+		</div>
+
+	</main>
+
+</div>
