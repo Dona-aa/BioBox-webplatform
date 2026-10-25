@@ -10,8 +10,8 @@ export async function POST({ request }) {
 		);
 	}
 
-	const allowedComponents = ['water', 'light', 'fan'];
-	const allowedActions = ['on', 'off'];
+	const allowedComponents = ['water', 'light', 'fan', 'mode'];
+	const allowedActions = ['on', 'off', 'auto', 'manual'];
 
 	if (!allowedComponents.includes(command.component)) {
 		return json(

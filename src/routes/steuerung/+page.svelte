@@ -147,6 +147,7 @@
 				</p>
 
 				<button
+					onclick={() => sendCommand('mode', 'auto')}
 					class={status.mode === 'AUTO'
 						? 'rounded-full bg-green-900 px-5 py-3 font-semibold text-white'
 						: 'rounded-full bg-lime-100 px-5 py-3 font-semibold text-green-900'}
@@ -155,6 +156,7 @@
 				</button>
 
 				<button
+					onclick={() => sendCommand('mode', 'manual')}
 					class={status.mode === 'MANUAL'
 						? 'rounded-full bg-green-900 px-5 py-3 font-semibold text-white'
 						: 'rounded-full bg-lime-100 px-5 py-3 font-semibold text-green-900'}
@@ -169,6 +171,7 @@
 
 		<div class="mt-6 space-y-4">
 
+			<!-- Bewässerung -->
 			<div
 				class="flex items-center justify-between rounded-2xl border border-green-200 px-6 py-5"
 			>
@@ -221,6 +224,7 @@
 			</div>
 
 
+			<!-- Beleuchtung -->
 			<div
 				class="flex items-center justify-between rounded-2xl border border-green-200 px-6 py-5"
 			>
@@ -273,6 +277,7 @@
 			</div>
 
 
+			<!-- Lüftung -->
 			<div
 				class="flex items-center justify-between rounded-2xl border border-green-200 px-6 py-5"
 			>
