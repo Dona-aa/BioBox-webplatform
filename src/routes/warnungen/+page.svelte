@@ -1,4 +1,6 @@
 <script>
+	import AppHeader from '$lib/components/AppHeader.svelte';
+
 	let { data } = $props();
 
 	let selectedFilter = $state('all');
@@ -22,66 +24,7 @@
 
 <div class="min-h-screen bg-white px-9 py-6">
 
-	<header class="flex items-center justify-between">
-
-		<a href="/" class="text-2xl font-bold text-green-900">
-			BioBox
-		</a>
-
-		<nav class="flex items-center gap-2">
-
-			<a
-				href="/dashboard"
-				class="rounded-full px-4 py-3 font-semibold text-green-950"
-			>
-				Dashboard
-			</a>
-
-			<a
-				href="/live-daten"
-				class="rounded-full px-4 py-3 font-semibold text-green-950"
-			>
-				Live-Daten
-			</a>
-
-			<a
-				href="/verlauf"
-				class="rounded-full px-4 py-3 font-semibold text-green-950"
-			>
-				Verlauf
-			</a>
-
-			<a
-				href="/steuerung"
-				class="rounded-full px-4 py-3 font-semibold text-green-950"
-			>
-				Steuerung
-			</a>
-
-			<a
-				href="/pflanzenanalyse"
-				class="rounded-full px-4 py-3 font-semibold text-green-950"
-			>
-				Pflanzenanalyse
-			</a>
-
-			<a
-				href="/warnungen"
-				class="rounded-full bg-green-900 px-5 py-3 font-semibold text-white"
-			>
-				Warnungen
-			</a>
-
-		</nav>
-
-		<div
-			class="flex h-11 w-11 items-center justify-center rounded-full bg-lime-300 font-semibold text-green-900"
-		>
-			EP
-		</div>
-
-	</header>
-
+	<AppHeader active="warnungen" />
 
 	<main class="mt-10">
 
