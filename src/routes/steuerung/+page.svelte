@@ -9,6 +9,8 @@
 	let lightActive = $state(status.led_duty_pct > 0);
 	let fanActive = $state(status.fan_duty_pct > 0);
 
+	let commandMessage = $state('');
+
 	async function updateStatus() {
 		const response = await fetch('/api/v1/status');
 
@@ -21,6 +23,23 @@
 		waterActive = status.pump_water_ms > 0;
 		lightActive = status.led_duty_pct > 0;
 		fanActive = status.fan_duty_pct > 0;
+	}
+
+	async function sendCommand(component, action) {
+		const response = await fetch('/api/v1/actuators/command', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				component,
+				action
+			})
+		});
+
+		if (response.ok) {
+			commandMessage = 'Befehl wurde gesendet.';
+		}
 	}
 
 	onMount(() => {
@@ -112,6 +131,12 @@
 					Im manuellen Modus schaltest du selbst.
 				</p>
 
+				{#if commandMessage}
+					<p class="mt-3 text-sm font-semibold text-green-700">
+						{commandMessage}
+					</p>
+				{/if}
+
 			</div>
 
 
@@ -144,7 +169,6 @@
 
 		<div class="mt-6 space-y-4">
 
-			<!-- Bewässerung -->
 			<div
 				class="flex items-center justify-between rounded-2xl border border-green-200 px-6 py-5"
 			>
@@ -175,6 +199,7 @@
 				<div class="flex gap-2">
 
 					<button
+						onclick={() => sendCommand('water', 'on')}
 						class={waterActive
 							? 'rounded-full bg-green-900 px-5 py-3 font-semibold text-white'
 							: 'rounded-full bg-lime-100 px-5 py-3 font-semibold text-green-900'}
@@ -183,6 +208,7 @@
 					</button>
 
 					<button
+						onclick={() => sendCommand('water', 'off')}
 						class={!waterActive
 							? 'rounded-full bg-green-900 px-5 py-3 font-semibold text-white'
 							: 'rounded-full bg-lime-100 px-5 py-3 font-semibold text-green-900'}
@@ -195,7 +221,6 @@
 			</div>
 
 
-			<!-- Beleuchtung -->
 			<div
 				class="flex items-center justify-between rounded-2xl border border-green-200 px-6 py-5"
 			>
@@ -226,6 +251,7 @@
 				<div class="flex gap-2">
 
 					<button
+						onclick={() => sendCommand('light', 'on')}
 						class={lightActive
 							? 'rounded-full bg-green-900 px-5 py-3 font-semibold text-white'
 							: 'rounded-full bg-lime-100 px-5 py-3 font-semibold text-green-900'}
@@ -234,6 +260,7 @@
 					</button>
 
 					<button
+						onclick={() => sendCommand('light', 'off')}
 						class={!lightActive
 							? 'rounded-full bg-green-900 px-5 py-3 font-semibold text-white'
 							: 'rounded-full bg-lime-100 px-5 py-3 font-semibold text-green-900'}
@@ -246,7 +273,6 @@
 			</div>
 
 
-			<!-- Lüftung -->
 			<div
 				class="flex items-center justify-between rounded-2xl border border-green-200 px-6 py-5"
 			>
@@ -277,6 +303,7 @@
 				<div class="flex gap-2">
 
 					<button
+						onclick={() => sendCommand('fan', 'on')}
 						class={fanActive
 							? 'rounded-full bg-green-900 px-5 py-3 font-semibold text-white'
 							: 'rounded-full bg-lime-100 px-5 py-3 font-semibold text-green-900'}
@@ -285,6 +312,7 @@
 					</button>
 
 					<button
+						onclick={() => sendCommand('fan', 'off')}
 						class={!fanActive
 							? 'rounded-full bg-green-900 px-5 py-3 font-semibold text-white'
 							: 'rounded-full bg-lime-100 px-5 py-3 font-semibold text-green-900'}
