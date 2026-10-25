@@ -33,10 +33,15 @@ export async function handle({ event, resolve }) {
 		.digest('hex');
 
 	const [sessions] = await db.execute(
-		`SELECT token_hash
+		`SELECT
+			users.id,
+			users.username,
+			users.email,
+			users.role
 		 FROM sessions
-		 WHERE token_hash = ?
-		 AND expires_at > NOW()
+		 JOIN users ON users.id = sessions.user_id
+		 WHERE sessions.token_hash = ?
+		 AND sessions.expires_at > NOW()
 		 LIMIT 1`,
 		[tokenHash]
 	);
@@ -45,6 +50,13 @@ export async function handle({ event, resolve }) {
 		event.cookies.delete('session', { path: '/' });
 		throw redirect(303, '/login');
 	}
+
+	event.locals.user = {
+		id: sessions[0].id,
+		username: sessions[0].username,
+		email: sessions[0].email,
+		role: sessions[0].role
+	};
 
 	return resolve(event);
 }

@@ -1,14 +1,32 @@
 <script>
+	import { page } from '$app/state';
+
 	let { active } = $props();
 
 	let profileOpen = $state(false);
 
-	function navClass(page) {
-		if (active === page) {
+	let user = $derived(page.data.user);
+
+	function navClass(pageName) {
+		if (active === pageName) {
 			return 'rounded-full bg-green-900 px-5 py-3 font-semibold text-white';
 		}
 
 		return 'rounded-full px-4 py-3 font-semibold text-green-950';
+	}
+
+	function getInitials(username) {
+		if (!username) {
+			return 'U';
+		}
+
+		const parts = username.trim().split(' ');
+
+		if (parts.length >= 2) {
+			return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+		}
+
+		return username.slice(0, 2).toUpperCase();
 	}
 </script>
 
@@ -71,23 +89,23 @@
 			onclick={() => profileOpen = !profileOpen}
 			class="flex h-11 w-11 items-center justify-center rounded-full bg-lime-300 font-semibold text-green-900"
 		>
-			EP
+			{getInitials(user?.username)}
 		</button>
 
 		{#if profileOpen}
 
 			<div
-				class="absolute right-0 z-20 mt-3 w-52 rounded-2xl border border-green-200 bg-white p-2 shadow-lg"
+				class="absolute right-0 z-20 mt-3 w-64 rounded-2xl border border-green-200 bg-white p-2 shadow-lg"
 			>
 
 				<div class="px-4 py-3">
 
 					<p class="font-semibold text-green-950">
-						EP
+						{user?.username}
 					</p>
 
-					<p class="text-sm text-green-700">
-						BioBox Konto
+					<p class="mt-1 text-sm text-green-700">
+						{user?.email}
 					</p>
 
 				</div>
