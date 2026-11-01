@@ -12,6 +12,10 @@
 
 		return `${Number(value).toFixed(1)} ${unit}`;
 	}
+
+	function imageCanBeDisplayed(path) {
+		return path && path.startsWith('/uploads/');
+	}
 </script>
 
 <div class="min-h-screen bg-white px-9 py-6">
@@ -39,25 +43,33 @@
 			<div class="rounded-2xl bg-green-900 p-6 lg:col-span-2">
 
 				<div
-					class="flex min-h-[330px] items-center justify-center rounded-xl bg-green-800"
+					class="flex min-h-[330px] items-center justify-center overflow-hidden rounded-xl bg-green-800"
 				>
-					<div class="text-center">
 
-						<p class="text-sm font-semibold text-green-200">
-							Letztes Pflanzenbild
-						</p>
+					{#if imageCanBeDisplayed(analysis?.file_path)}
 
-						{#if analysis}
-							<p class="mt-2 text-white">
-								{analysis.file_name}
+						<img
+							src={analysis.file_path}
+							alt="Letzte Aufnahme der Pflanze"
+							class="h-[330px] w-full object-contain"
+						/>
+
+					{:else}
+
+						<div class="text-center">
+
+							<p class="text-sm font-semibold text-green-200">
+								Letztes Pflanzenbild
 							</p>
-						{:else}
+
 							<p class="mt-2 text-green-200">
-								Noch kein Bild vorhanden
+								Noch kein Bild verfügbar
 							</p>
-						{/if}
 
-					</div>
+						</div>
+
+					{/if}
+
 				</div>
 
 
@@ -88,6 +100,7 @@
 				<div class="mt-5 space-y-5">
 
 					<div>
+
 						<p class="text-sm text-green-700">
 							Pflanzenfläche
 						</p>
@@ -95,6 +108,7 @@
 						<p class="mt-1 text-3xl font-semibold text-green-950">
 							{showValue(analysis?.leaf_area_cm2, 'cm²')}
 						</p>
+
 					</div>
 
 
