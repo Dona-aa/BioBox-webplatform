@@ -48,7 +48,6 @@
 		<div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
 
 			<div class="rounded-2xl bg-lime-100 p-6">
-
 				<p class="text-sm text-green-700">
 					Temperatur
 				</p>
@@ -58,12 +57,10 @@
 						? 'Keine Daten'
 						: `${data.sensorData.temperature} °C`}
 				</p>
-
 			</div>
 
 
 			<div class="rounded-2xl bg-lime-100 p-6">
-
 				<p class="text-sm text-green-700">
 					Luftfeuchtigkeit
 				</p>
@@ -73,12 +70,10 @@
 						? 'Keine Daten'
 						: `${data.sensorData.humidity} %`}
 				</p>
-
 			</div>
 
 
 			<div class="rounded-2xl bg-green-900 p-6 text-white">
-
 				<p class="text-sm text-green-100">
 					Bodenfeuchte
 				</p>
@@ -88,12 +83,10 @@
 						? 'Keine Daten'
 						: `${data.sensorData.soilMoisture} %`}
 				</p>
-
 			</div>
 
 
 			<div class="rounded-2xl bg-lime-100 p-6">
-
 				<p class="text-sm text-green-700">
 					Licht
 				</p>
@@ -103,7 +96,6 @@
 						? 'Keine Daten'
 						: `${data.sensorData.light} lux`}
 				</p>
-
 			</div>
 
 		</div>
@@ -111,10 +103,77 @@
 
 		<div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
 
-			<div class="min-h-[300px] rounded-2xl bg-green-900 lg:col-span-2">
+			<!-- Temperaturverlauf -->
+			<div class="rounded-2xl bg-green-900 p-6 text-white lg:col-span-2">
+
+				<div class="flex items-center justify-between">
+
+					<div>
+						<p class="text-sm text-green-200">
+							Temperaturverlauf
+						</p>
+
+						<h2 class="mt-1 text-2xl font-semibold">
+							Letzte 24 Stunden
+						</h2>
+					</div>
+
+					<a
+						href="/verlauf?metric=temperature&period=24h"
+						class="rounded-full bg-lime-300 px-4 py-2 text-sm font-semibold text-green-950"
+					>
+						Mehr anzeigen
+					</a>
+
+				</div>
+
+
+				{#if data.chartPoints}
+
+					<div class="mt-6 h-52 w-full">
+
+						<svg
+							viewBox="0 0 1000 260"
+							preserveAspectRatio="none"
+							class="h-full w-full"
+						>
+
+							<polygon
+								points={`0,260 ${data.chartPoints} 1000,260`}
+								fill="#356642"
+							/>
+
+							<polyline
+								points={data.chartPoints}
+								fill="none"
+								stroke="#c5e85c"
+								stroke-width="5"
+							/>
+
+						</svg>
+
+					</div>
+
+					<div class="mt-3 flex justify-between text-sm font-semibold text-green-100">
+						<span>vor 24 Std.</span>
+						<span>vor 18 Std.</span>
+						<span>vor 12 Std.</span>
+						<span>vor 6 Std.</span>
+						<span>jetzt</span>
+					</div>
+
+				{:else}
+
+					<div class="flex h-52 items-center justify-center text-green-100">
+						Keine Daten in den letzten 24 Stunden.
+					</div>
+
+				{/if}
+
 			</div>
 
 
+			<!-- Komponenten -->
 			<div class="rounded-2xl border border-green-200 p-6">
 
 				<h2 class="text-2xl font-semibold text-green-950">
@@ -124,7 +183,6 @@
 				<div class="mt-5 divide-y divide-green-100">
 
 					<div class="flex items-center justify-between py-4">
-
 						<p class="text-green-950">
 							Belüftung
 						</p>
@@ -134,12 +192,10 @@
 								? 'Aktiv'
 								: 'Inaktiv'}
 						</p>
-
 					</div>
 
 
 					<div class="flex items-center justify-between py-4">
-
 						<p class="text-green-950">
 							Bewässerung
 						</p>
@@ -149,12 +205,10 @@
 								? 'Aktiv'
 								: 'Inaktiv'}
 						</p>
-
 					</div>
 
 
 					<div class="flex items-center justify-between py-4">
-
 						<p class="text-green-950">
 							Beleuchtung
 						</p>
@@ -164,12 +218,10 @@
 								? 'Aktiv'
 								: 'Inaktiv'}
 						</p>
-
 					</div>
 
 
 					<div class="flex items-center justify-between py-4">
-
 						<p class="text-green-950">
 							Betriebsmodus
 						</p>
@@ -177,7 +229,6 @@
 						<p class="text-green-700">
 							{data.statusData.mode}
 						</p>
-
 					</div>
 
 				</div>
