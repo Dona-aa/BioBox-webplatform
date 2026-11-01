@@ -9,7 +9,10 @@ export async function POST({ request }) {
 		leaf_area_cm2,
 		canopy_cover_pct,
 		greenness_index,
-		yellow_fraction_pct
+		yellow_fraction_pct,
+		mean_hue,
+		mean_saturation,
+		brown_fraction_pct
 	} = data;
 
 	if (!image_id) {
@@ -49,13 +52,19 @@ export async function POST({ request }) {
 				leaf_area_cm2 = ?,
 				canopy_cover_pct = ?,
 				greenness_index = ?,
-				yellow_fraction_pct = ?
+				yellow_fraction_pct = ?,
+				mean_hue = ?,
+				mean_saturation = ?,
+				brown_fraction_pct = ?
 			 WHERE image_id = ?`,
 			[
 				leaf_area_cm2 ?? null,
 				canopy_cover_pct ?? null,
 				greenness_index ?? null,
 				yellow_fraction_pct ?? null,
+				mean_hue ?? null,
+				mean_saturation ?? null,
+				brown_fraction_pct ?? null,
 				image_id
 			]
 		);
@@ -72,15 +81,21 @@ export async function POST({ request }) {
 			leaf_area_cm2,
 			canopy_cover_pct,
 			greenness_index,
-			yellow_fraction_pct
+			yellow_fraction_pct,
+			mean_hue,
+			mean_saturation,
+			brown_fraction_pct
 		)
-		VALUES (?, ?, ?, ?, ?)`,
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
 		[
 			image_id,
 			leaf_area_cm2 ?? null,
 			canopy_cover_pct ?? null,
 			greenness_index ?? null,
-			yellow_fraction_pct ?? null
+			yellow_fraction_pct ?? null,
+			mean_hue ?? null,
+			mean_saturation ?? null,
+			brown_fraction_pct ?? null
 		]
 	);
 
