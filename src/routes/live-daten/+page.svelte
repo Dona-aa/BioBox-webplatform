@@ -6,6 +6,14 @@
 
 	let sensorData = $state(data.sensorData);
 
+	function formatDate(date) {
+		if (!date) {
+			return 'Keine Messung';
+		}
+
+		return new Date(date).toLocaleString('de-DE');
+	}
+
 	async function updateSensorData() {
 		const response = await fetch('/api/v1/telemetry');
 
@@ -16,6 +24,15 @@
 		const telemetry = await response.json();
 
 		if (telemetry.message === 'Keine Sensordaten vorhanden') {
+			sensorData = {
+				temperature: null,
+				humidity: null,
+				soilMoisture: null,
+				soilTemperature: null,
+				light: null,
+				measuredAt: null
+			};
+
 			return;
 		}
 
@@ -60,11 +77,12 @@
 				<span class="h-3 w-3 rounded-full bg-lime-400"></span>
 
 				<span>
-					Live · Verbindung hergestellt
+					Automatische Aktualisierung · 5 Sek.
 				</span>
 			</div>
 
 		</div>
+
 
 		<div class="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
 
@@ -81,11 +99,12 @@
 						: `${sensorData.temperature} °C`}
 				</p>
 
-				<p class="mt-3 text-sm font-semibold text-lime-300">
-					Vorher 23,4 · vor 2 Sekunden
+				<p class="mt-3 text-sm text-green-100">
+					Letzte Messung: {formatDate(sensorData.measuredAt)}
 				</p>
 
 			</div>
+
 
 			<!-- Luftfeuchtigkeit -->
 			<div class="rounded-2xl bg-lime-100 p-6">
@@ -101,10 +120,11 @@
 				</p>
 
 				<p class="mt-3 text-sm text-green-700">
-					Zuletzt aktualisiert: vor 2 Sekunden
+					Letzte Messung: {formatDate(sensorData.measuredAt)}
 				</p>
 
 			</div>
+
 
 			<!-- Bodenfeuchtigkeit -->
 			<div class="rounded-2xl bg-lime-100 p-6">
@@ -120,10 +140,11 @@
 				</p>
 
 				<p class="mt-3 text-sm text-green-700">
-					Zuletzt aktualisiert: vor 2 Sekunden
+					Letzte Messung: {formatDate(sensorData.measuredAt)}
 				</p>
 
 			</div>
+
 
 			<!-- Bodentemperatur -->
 			<div class="rounded-2xl bg-lime-100 p-6">
@@ -139,10 +160,11 @@
 				</p>
 
 				<p class="mt-3 text-sm text-green-700">
-					Zuletzt aktualisiert: vor 2 Sekunden
+					Letzte Messung: {formatDate(sensorData.measuredAt)}
 				</p>
 
 			</div>
+
 
 			<!-- Licht -->
 			<div class="rounded-2xl bg-lime-100 p-6">
@@ -158,10 +180,11 @@
 				</p>
 
 				<p class="mt-3 text-sm text-green-700">
-					Zuletzt aktualisiert: vor 2 Sekunden
+					Letzte Messung: {formatDate(sensorData.measuredAt)}
 				</p>
 
 			</div>
+
 
 			<!-- Hinweis -->
 			<div class="rounded-2xl border border-green-200 p-6">
@@ -171,18 +194,12 @@
 				</p>
 
 				<p class="mt-2 text-lg text-green-950">
-					Neue Werte erscheinen automatisch.
-					<br />
-					Die Seite muss nicht neu geladen werden.
+					Neue Messwerte werden automatisch alle 5 Sekunden geladen.
 				</p>
 
 			</div>
 
 		</div>
-
-		<p class="mt-5 text-sm text-green-700">
-			Beispieldaten für das Mockup
-		</p>
 
 	</main>
 
