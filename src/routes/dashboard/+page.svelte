@@ -1,60 +1,14 @@
 <script>
 	import { onMount } from 'svelte';
+	import { invalidateAll } from '$app/navigation';
 	import AppHeader from '$lib/components/AppHeader.svelte';
 
 	let { data } = $props();
 
-	let sensorData = $state(data.sensorData);
-	let statusData = $state(data.statusData);
-	let latestAlert = $state(data.latestAlert);
-	let connectionStatus = $state('Verbunden');
-
-	async function updateSensorData() {
-		try {
-			const response = await fetch('/api/v1/telemetry');
-
-			if (!response.ok) {
-				throw new Error('Telemetriedaten konnten nicht geladen werden');
-			}
-
-			const telemetry = await response.json();
-
-			if (telemetry.message === 'Keine Sensordaten vorhanden') {
-				sensorData = {
-					measuredAt: null,
-					temperature: null,
-					humidity: null,
-					soilMoisture: null,
-					soilTemperature: null,
-					light: null,
-					dli: null,
-					sensorHealth: null
-				};
-
-				connectionStatus = 'Verbunden';
-				return;
-			}
-
-			sensorData = {
-				measuredAt: telemetry.measured_at,
-				temperature: telemetry.air_temp_c,
-				humidity: telemetry.air_humidity_pct,
-				soilMoisture: telemetry.soil_moisture_pct,
-				soilTemperature: telemetry.soil_temp_c,
-				light: telemetry.light_lux,
-				dli: telemetry.dli_est_mol,
-				sensorHealth: telemetry.sensor_health
-			};
-
-			connectionStatus = 'Verbunden';
-		} catch (error) {
-			console.error(error);
-			connectionStatus = 'Verbindungsproblem';
-		}
-	}
-
 	onMount(() => {
-		const interval = setInterval(updateSensorData, 5000);
+		const interval = setInterval(() => {
+			invalidateAll();
+		}, 5000);
 
 		return () => clearInterval(interval);
 	});
@@ -74,15 +28,15 @@
 			Guten Morgen.
 		</h1>
 
-		{#if latestAlert}
+		{#if data.latestAlert}
 			<div
-				class={latestAlert.severity === 'critical'
+				class={data.latestAlert.severity === 'critical'
 					? 'mt-6 rounded-xl bg-red-100 px-5 py-4 text-red-900'
-					: latestAlert.severity === 'warning'
+					: data.latestAlert.severity === 'warning'
 						? 'mt-6 rounded-xl bg-yellow-100 px-5 py-4 text-yellow-900'
 						: 'mt-6 rounded-xl bg-lime-100 px-5 py-4 text-green-900'}
 			>
-				▲ {latestAlert.message}
+				▲ {data.latestAlert.message}
 			</div>
 		{:else}
 			<div class="mt-6 rounded-xl bg-lime-100 px-5 py-4 text-green-900">
@@ -90,62 +44,76 @@
 			</div>
 		{/if}
 
+
 		<div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
 
 			<div class="rounded-2xl bg-lime-100 p-6">
+
 				<p class="text-sm text-green-700">
 					Temperatur
 				</p>
 
 				<p class="mt-2 text-5xl font-semibold text-green-950">
-					{sensorData.temperature === null
+					{data.sensorData.temperature === null
 						? 'Keine Daten'
-						: `${sensorData.temperature} °C`}
+						: `${data.sensorData.temperature} °C`}
 				</p>
+
 			</div>
 
+
 			<div class="rounded-2xl bg-lime-100 p-6">
+
 				<p class="text-sm text-green-700">
 					Luftfeuchtigkeit
 				</p>
 
 				<p class="mt-2 text-5xl font-semibold text-green-950">
-					{sensorData.humidity === null
+					{data.sensorData.humidity === null
 						? 'Keine Daten'
-						: `${sensorData.humidity} %`}
+						: `${data.sensorData.humidity} %`}
 				</p>
+
 			</div>
 
+
 			<div class="rounded-2xl bg-green-900 p-6 text-white">
+
 				<p class="text-sm text-green-100">
 					Bodenfeuchte
 				</p>
 
 				<p class="mt-2 text-5xl font-semibold">
-					{sensorData.soilMoisture === null
+					{data.sensorData.soilMoisture === null
 						? 'Keine Daten'
-						: `${sensorData.soilMoisture} %`}
+						: `${data.sensorData.soilMoisture} %`}
 				</p>
+
 			</div>
 
+
 			<div class="rounded-2xl bg-lime-100 p-6">
+
 				<p class="text-sm text-green-700">
 					Licht
 				</p>
 
 				<p class="mt-2 text-5xl font-semibold text-green-950">
-					{sensorData.light === null
+					{data.sensorData.light === null
 						? 'Keine Daten'
-						: `${sensorData.light} lux`}
+						: `${data.sensorData.light} lux`}
 				</p>
+
 			</div>
 
 		</div>
+
 
 		<div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
 
 			<div class="min-h-[300px] rounded-2xl bg-green-900 lg:col-span-2">
 			</div>
+
 
 			<div class="rounded-2xl border border-green-200 p-6">
 
@@ -156,52 +124,64 @@
 				<div class="mt-5 divide-y divide-green-100">
 
 					<div class="flex items-center justify-between py-4">
+
 						<p class="text-green-950">
 							Belüftung
 						</p>
 
 						<p class="text-green-700">
-							{statusData.fan_duty_pct > 0
+							{data.statusData.fan_duty_pct > 0
 								? 'Aktiv'
 								: 'Inaktiv'}
 						</p>
+
 					</div>
 
+
 					<div class="flex items-center justify-between py-4">
+
 						<p class="text-green-950">
 							Bewässerung
 						</p>
 
 						<p class="text-green-700">
-							{statusData.pump_water_ms > 0
+							{data.statusData.pump_water_ms > 0
 								? 'Aktiv'
 								: 'Inaktiv'}
 						</p>
+
 					</div>
 
+
 					<div class="flex items-center justify-between py-4">
+
 						<p class="text-green-950">
 							Beleuchtung
 						</p>
 
 						<p class="text-green-700">
-							{statusData.led_duty_pct > 0
+							{data.statusData.led_duty_pct > 0
 								? 'Aktiv'
 								: 'Inaktiv'}
 						</p>
+
 					</div>
 
+
 					<div class="flex items-center justify-between py-4">
+
 						<p class="text-green-950">
 							Betriebsmodus
 						</p>
 
 						<p class="text-green-700">
-							{statusData.mode}
+							{data.statusData.mode}
 						</p>
+
 					</div>
 
 				</div>
+
 			</div>
 
 		</div>
