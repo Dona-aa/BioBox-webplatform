@@ -1,4 +1,6 @@
 <script>
+	import { onMount } from 'svelte';
+	import { invalidateAll } from '$app/navigation';
 	import AppHeader from '$lib/components/AppHeader.svelte';
 
 	let { data } = $props();
@@ -20,6 +22,14 @@
 	function formatDate(date) {
 		return new Date(date).toLocaleString('de-DE');
 	}
+
+	onMount(() => {
+		const interval = setInterval(() => {
+			invalidateAll();
+		}, 5000);
+
+		return () => clearInterval(interval);
+	});
 </script>
 
 <div class="min-h-screen bg-white px-9 py-6">
