@@ -1,9 +1,11 @@
 <script>
+	import { onMount } from 'svelte';
+	import { invalidateAll } from '$app/navigation';
 	import AppHeader from '$lib/components/AppHeader.svelte';
 
 	let { data } = $props();
 
-	let analysis = data.analysis;
+	let analysis = $derived(data.analysis);
 
 	function showValue(value, unit = '') {
 		if (value === null || value === undefined) {
@@ -16,6 +18,14 @@
 	function imageCanBeDisplayed(path) {
 		return path && path.startsWith('/uploads/');
 	}
+
+	onMount(() => {
+		const interval = setInterval(() => {
+			invalidateAll();
+		}, 5000);
+
+		return () => clearInterval(interval);
+	});
 </script>
 
 <div class="min-h-screen bg-white px-9 py-6">
@@ -39,7 +49,6 @@
 
 		<div class="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
 
-			<!-- Bild -->
 			<div class="rounded-2xl bg-green-900 p-6 lg:col-span-2">
 
 				<div
@@ -90,7 +99,6 @@
 			</div>
 
 
-			<!-- Analyse -->
 			<div class="rounded-2xl border border-green-200 p-6">
 
 				<h2 class="text-2xl font-semibold text-green-950">
