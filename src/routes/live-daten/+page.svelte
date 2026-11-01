@@ -5,6 +5,7 @@
 	let { data } = $props();
 
 	let sensorData = $state(data.sensorData);
+	let currentTime = $state(Date.now());
 
 	function formatDate(date) {
 		if (!date) {
@@ -12,6 +13,17 @@
 		}
 
 		return new Date(date).toLocaleString('de-DE');
+	}
+
+	function dataIsFresh() {
+		if (!sensorData.measuredAt) {
+			return false;
+		}
+
+		const measuredTime = new Date(sensorData.measuredAt).getTime();
+		const difference = currentTime - measuredTime;
+
+		return difference <= 2 * 60 * 1000;
 	}
 
 	async function updateSensorData() {
@@ -47,7 +59,10 @@
 	}
 
 	onMount(() => {
-		const interval = setInterval(updateSensorData, 5000);
+		const interval = setInterval(() => {
+			currentTime = Date.now();
+			updateSensorData();
+		}, 5000);
 
 		return () => clearInterval(interval);
 	});
@@ -71,15 +86,31 @@
 				</h1>
 			</div>
 
-			<div
-				class="inline-flex w-fit items-center gap-2 rounded-full bg-lime-100 px-4 py-2 text-sm font-semibold leading-none text-green-950"
-			>
-				<span class="h-3 w-3 rounded-full bg-lime-400"></span>
+			{#if dataIsFresh()}
 
-				<span>
-					Automatische Aktualisierung · 5 Sek.
-				</span>
-			</div>
+				<div
+					class="inline-flex w-fit items-center gap-2 rounded-full bg-lime-100 px-4 py-2 text-sm font-semibold leading-none text-green-950"
+				>
+					<span class="h-3 w-3 rounded-full bg-lime-400"></span>
+
+					<span>
+						Live · Verbindung hergestellt
+					</span>
+				</div>
+
+			{:else}
+
+				<div
+					class="inline-flex w-fit items-center gap-2 rounded-full bg-yellow-100 px-4 py-2 text-sm font-semibold leading-none text-yellow-900"
+				>
+					<span class="h-3 w-3 rounded-full bg-yellow-400"></span>
+
+					<span>
+						Daten nicht aktuell
+					</span>
+				</div>
+
+			{/if}
 
 		</div>
 
