@@ -1,3 +1,5 @@
+import { db } from '$lib/server/db.js';
+
 export async function load({ fetch }) {
 	const telemetryResponse = await fetch('/api/v1/telemetry');
 	const telemetry = await telemetryResponse.json();
@@ -27,8 +29,22 @@ export async function load({ fetch }) {
 		};
 	}
 
+	const [alerts] = await db.execute(`
+		SELECT
+			id,
+			alert_type,
+			severity,
+			message,
+			created_at
+		FROM alerts
+		WHERE is_resolved = FALSE
+		ORDER BY created_at DESC
+		LIMIT 1
+	`);
+
 	return {
 		sensorData,
-		statusData: status
+		statusData: status,
+		latestAlert: alerts.length > 0 ? alerts[0] : null
 	};
 }

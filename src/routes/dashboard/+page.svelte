@@ -6,6 +6,7 @@
 
 	let sensorData = $state(data.sensorData);
 	let statusData = $state(data.statusData);
+	let latestAlert = $state(data.latestAlert);
 	let connectionStatus = $state('Verbunden');
 
 	async function updateSensorData() {
@@ -73,9 +74,21 @@
 			Guten Morgen.
 		</h1>
 
-		<div class="mt-6 rounded-xl bg-yellow-100 px-5 py-4 text-yellow-900">
-			▲ Bodenfeuchte ist niedrig. Bald gießen empfohlen.
-		</div>
+		{#if latestAlert}
+			<div
+				class={latestAlert.severity === 'critical'
+					? 'mt-6 rounded-xl bg-red-100 px-5 py-4 text-red-900'
+					: latestAlert.severity === 'warning'
+						? 'mt-6 rounded-xl bg-yellow-100 px-5 py-4 text-yellow-900'
+						: 'mt-6 rounded-xl bg-lime-100 px-5 py-4 text-green-900'}
+			>
+				▲ {latestAlert.message}
+			</div>
+		{:else}
+			<div class="mt-6 rounded-xl bg-lime-100 px-5 py-4 text-green-900">
+				Keine aktiven Warnungen.
+			</div>
+		{/if}
 
 		<div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
 
