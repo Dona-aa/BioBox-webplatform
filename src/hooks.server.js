@@ -9,7 +9,8 @@ export async function handle({ event, resolve }) {
 		'/verlauf',
 		'/steuerung',
 		'/pflanzenanalyse',
-		'/warnungen'
+		'/warnungen',
+		'/benutzer'
 	];
 
 	const protectedApi = [
@@ -79,6 +80,7 @@ export async function handle({ event, resolve }) {
 
 	const adminOnlyRoute =
 		event.url.pathname.startsWith('/steuerung') ||
+		event.url.pathname.startsWith('/benutzer') ||
 		event.url.pathname.startsWith('/api/v1/actuators/command');
 
 	if (
