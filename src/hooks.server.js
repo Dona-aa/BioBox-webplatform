@@ -77,13 +77,13 @@ export async function handle({ event, resolve }) {
 		role: sessions[0].role
 	};
 
-	const controlRoute =
+	const adminOnlyRoute =
 		event.url.pathname.startsWith('/steuerung') ||
 		event.url.pathname.startsWith('/api/v1/actuators/command');
 
 	if (
-		controlRoute &&
-		!['operator', 'admin'].includes(event.locals.user.role)
+		adminOnlyRoute &&
+		event.locals.user.role !== 'admin'
 	) {
 		if (event.url.pathname.startsWith('/api/')) {
 			throw error(403, 'Keine Berechtigung.');
