@@ -8,6 +8,7 @@
 	let currentTime = $state(Date.now());
 	let updating = $state(false);
 	let connectionError = $state(false);
+	let refreshMessage = $state('');
 
 	const sensors = [
 		{
@@ -84,16 +85,23 @@
 		return Math.max(0, Math.min(100, Number(value)));
 	}
 
-	async function updateSensorData() {
+	async function updateSensorData(manual = false) {
 		if (updating) return;
 
 		updating = true;
 
+		if (manual) {
+			refreshMessage = '';
+		}
+
 		try {
-			const response = await fetch('/api/v1/telemetry');
+			const response = await fetch(`/api/v1/telemetry?t=${Date.now()}`, {
+				method: 'GET',
+				cache: 'no-store'
+			});
 
 			if (!response.ok) {
-				throw new Error('Sensordaten konnten nicht geladen werden.');
+				throw new Error(`HTTP ${response.status}`);
 			}
 
 			const telemetry = await response.json();
@@ -109,7 +117,13 @@
 					light: null,
 					measuredAt: null
 				};
+
+				if (manual) {
+					refreshMessage = 'Keine Sensordaten vorhanden.';
+				}
 			} else {
+				const previousMeasurement = sensorData.measuredAt;
+
 				sensorData = {
 					temperature: telemetry.air_temp_c,
 					humidity: telemetry.air_humidity_pct,
@@ -118,10 +132,24 @@
 					light: telemetry.light_lux,
 					measuredAt: telemetry.measured_at
 				};
+
+				if (manual) {
+					if (previousMeasurement !== telemetry.measured_at) {
+						refreshMessage = 'Neue Messwerte geladen.';
+					} else {
+						refreshMessage =
+							'Abfrage erfolgreich. Es liegen noch keine neueren Messwerte vor.';
+					}
+				}
 			}
 		} catch (error) {
 			connectionError = true;
-			console.error(error);
+
+			if (manual) {
+				refreshMessage = 'Aktualisierung fehlgeschlagen.';
+			}
+
+			console.error('Fehler beim Aktualisieren der Sensordaten:', error);
 		} finally {
 			currentTime = Date.now();
 			updating = false;
@@ -129,6 +157,8 @@
 	}
 
 	onMount(() => {
+		updateSensorData();
+
 		const interval = setInterval(() => {
 			currentTime = Date.now();
 			updateSensorData();
@@ -159,14 +189,25 @@
 				</p>
 			</div>
 
-			<button
-				type="button"
-				onclick={updateSensorData}
-				disabled={updating}
-				class="rounded-lg bg-[#1C2B23] px-5 py-3 text-[12px] font-medium text-[#E8EBE9] transition-colors hover:bg-[#304437] disabled:cursor-not-allowed disabled:opacity-60"
-			>
-				{updating ? 'Aktualisiere …' : 'Messwerte aktualisieren →'}
-			</button>
+			<div class="flex flex-col items-start gap-2 sm:items-end">
+				<button
+					type="button"
+					onclick={() => updateSensorData(true)}
+					disabled={updating}
+					class="rounded-lg bg-[#1C2B23] px-5 py-3 text-[12px] font-medium text-[#E8EBE9] transition-colors hover:bg-[#304437] disabled:cursor-not-allowed disabled:opacity-60"
+				>
+					{updating ? 'Aktualisiere …' : 'Messwerte aktualisieren →'}
+				</button>
+
+				{#if refreshMessage}
+					<p
+						class="max-w-xs text-right text-[11px] text-[#68796D]"
+						role="status"
+					>
+						{refreshMessage}
+					</p>
+				{/if}
+			</div>
 		</div>
 
 		<!-- STATUSLEISTE -->
