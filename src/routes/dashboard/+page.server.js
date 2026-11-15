@@ -1,9 +1,11 @@
 import { db } from '$lib/server/db.js';
 
 export async function load({ fetch }) {
+	// Aktuelle Sensordaten
 	const telemetryResponse = await fetch('/api/v1/telemetry');
 	const telemetry = await telemetryResponse.json();
 
+	// Aktueller Komponentenstatus
 	const statusResponse = await fetch('/api/v1/status');
 	const status = await statusResponse.json();
 
@@ -17,7 +19,10 @@ export async function load({ fetch }) {
 		measuredAt: null
 	};
 
-	if (telemetry.message !== 'Keine Sensordaten vorhanden') {
+	if (
+		telemetryResponse.ok &&
+		telemetry.message !== 'Keine Sensordaten vorhanden'
+	) {
 		sensorData = {
 			temperature: telemetry.air_temp_c,
 			humidity: telemetry.air_humidity_pct,
@@ -29,6 +34,7 @@ export async function load({ fetch }) {
 		};
 	}
 
+	// Aktuelle Warnung
 	const [alerts] = await db.execute(`
 		SELECT
 			id,
@@ -42,47 +48,91 @@ export async function load({ fetch }) {
 		LIMIT 1
 	`);
 
-	const [history] = await db.execute(`
+	// Prüfen, ob historische Daten aus den letzten 24 Stunden existieren
+	const [periodRows] = await db.execute(`
 		SELECT
-			measured_at,
-			air_temp_c
+			MAX(measured_at) AS latest_measurement,
+			CASE
+				WHEN MAX(measured_at) >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL 24 HOUR)
+				THEN 1
+				ELSE 0
+			END AS has_recent_data
 		FROM sensor_measurements
-		WHERE measured_at >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL 24 HOUR)
-		AND air_temp_c IS NOT NULL
-		ORDER BY measured_at ASC
 	`);
 
-	let chartPoints = '';
+	const latestMeasurement = periodRows[0].latest_measurement;
+	const hasRecentData = Number(periodRows[0].has_recent_data) === 1;
 
-	if (history.length > 0) {
-		const values = history.map((row) => Number(row.air_temp_c));
+	let history = [];
+	let chartEnd = Date.now();
 
-		const minimum = Math.min(...values);
-		const maximum = Math.max(...values);
-		const range = maximum - minimum || 1;
+	if (latestMeasurement) {
+		if (hasRecentData) {
+			// Normale Anzeige: letzte 24 Stunden
+			const [rows] = await db.execute(`
+				SELECT
+					measured_at,
+					air_temp_c,
+					air_humidity_pct,
+					soil_moisture_pct,
+					light_lux
+				FROM sensor_measurements
+				WHERE measured_at >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL 24 HOUR)
+				  AND measured_at <= UTC_TIMESTAMP()
+				ORDER BY measured_at ASC
+			`);
 
-		chartPoints = history
-			.map((row, index) => {
-				const x =
-					history.length === 1
-						? 500
-						: (index / (history.length - 1)) * 1000;
+			history = rows;
+		} else {
+			// Entwicklungsmodus: letzte 24 Stunden vor der neuesten Messung
+			const [rows] = await db.execute(`
+				SELECT
+					measured_at,
+					air_temp_c,
+					air_humidity_pct,
+					soil_moisture_pct,
+					light_lux
+				FROM sensor_measurements
+				WHERE measured_at >= DATE_SUB(
+					(SELECT MAX(measured_at) FROM sensor_measurements),
+					INTERVAL 24 HOUR
+				)
+				AND measured_at <= (
+					SELECT MAX(measured_at) FROM sensor_measurements
+				)
+				ORDER BY measured_at ASC
+			`);
 
-				const value = Number(row.air_temp_c);
+			history = rows;
 
-				const y =
-					220 -
-					((value - minimum) / range) * 160;
-
-				return `${x},${y}`;
-			})
-			.join(' ');
+			chartEnd = new Date(latestMeasurement).getTime();
+		}
 	}
+
+	// Daten für die Diagramme vorbereiten
+	const chartHistory = history.map((row) => ({
+		time: new Date(row.measured_at).getTime(),
+
+		temperature:
+			row.air_temp_c == null ? null : Number(row.air_temp_c),
+
+		humidity:
+			row.air_humidity_pct == null ? null : Number(row.air_humidity_pct),
+
+		soilMoisture:
+			row.soil_moisture_pct == null ? null : Number(row.soil_moisture_pct),
+
+		light:
+			row.light_lux == null ? null : Number(row.light_lux)
+	}));
 
 	return {
 		sensorData,
 		statusData: status,
 		latestAlert: alerts.length > 0 ? alerts[0] : null,
-		chartPoints
+
+		chartHistory,
+		chartEnd,
+		hasRecentData
 	};
 }
