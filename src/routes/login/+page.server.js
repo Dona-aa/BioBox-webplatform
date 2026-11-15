@@ -1,6 +1,7 @@
 import { fail, redirect } from '@sveltejs/kit';
 import bcrypt from 'bcryptjs';
 import { randomBytes, createHash } from 'node:crypto';
+import { dev } from '$app/environment';
 import { db } from '$lib/server/db.js';
 
 export const actions = {
@@ -40,15 +41,15 @@ export const actions = {
 			});
 		}
 
-		// Create a random session token.
+		// Zufälliges Session-Token erstellen
 		const sessionToken = randomBytes(32).toString('hex');
 
-		// Store only the hash in the database.
+		// Nur den Hash in der Datenbank speichern
 		const tokenHash = createHash('sha256')
 			.update(sessionToken)
 			.digest('hex');
 
-		// Session is valid for 7 days.
+		// Session ist sieben Tage gültig
 		const expiresAt = new Date(
 			Date.now() + 7 * 24 * 60 * 60 * 1000
 		);
@@ -58,12 +59,12 @@ export const actions = {
 			[tokenHash, user.id, expiresAt]
 		);
 
-		// Store the real token in the browser cookie.
+		// Session-Cookie setzen
 		cookies.set('session', sessionToken, {
 			path: '/',
 			httpOnly: true,
 			sameSite: 'lax',
-			secure: false,
+			secure: !dev,
 			maxAge: 60 * 60 * 24 * 7
 		});
 
