@@ -140,9 +140,25 @@
 							{user?.email}
 						</p>
 
+						<p class="mt-2 text-xs font-medium uppercase tracking-[0.1em] text-[#7B8A80]">
+							{user?.role === 'admin' ? 'Admin' : 'Viewer'}
+						</p>
+
 					</div>
 
 					<div class="border-t border-[#C7D1CA] pt-2">
+
+						{#if user?.role === 'admin'}
+
+							<a
+								href="/benutzer"
+								onclick={() => profileOpen = false}
+								class="block w-full px-4 py-3 text-left text-sm font-medium text-[#26312B] transition-colors hover:bg-[#E0E7E2]"
+							>
+								Benutzerverwaltung
+							</a>
+
+						{/if}
 
 						<form method="POST" action="/logout">
 
