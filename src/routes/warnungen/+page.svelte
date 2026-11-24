@@ -125,6 +125,10 @@
 	});
 </script>
 
+<svelte:head>
+	<title>{m.alerts_title()} · BioBox</title>
+</svelte:head>
+
 <div class="min-h-screen bg-[#E5EAE6] px-9 py-6 font-sans text-[#25332B]">
 
 	<AppHeader active="warnungen" />

@@ -225,6 +225,10 @@
 	);
 </script>
 
+<svelte:head>
+	<title>{m.dashboard_overview()} · BioBox</title>
+</svelte:head>
+
 <!-- KREISDIAGRAMM -->
 {#snippet gauge(value, label, color)}
 	<div class="flex flex-col items-center">

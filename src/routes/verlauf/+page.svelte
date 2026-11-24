@@ -138,6 +138,10 @@
 	});
 </script>
 
+<svelte:head>
+	<title>{m.history_title()} · BioBox</title>
+</svelte:head>
+
 <div class="min-h-screen bg-[#E5EAE6] px-6 py-6 font-sans text-[#25332B] sm:px-9">
 	<AppHeader active="verlauf" />
 

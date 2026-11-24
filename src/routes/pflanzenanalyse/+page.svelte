@@ -84,6 +84,10 @@
 	});
 </script>
 
+<svelte:head>
+	<title>{m.plant_title()} · BioBox</title>
+</svelte:head>
+
 <!-- CIRCULAR INDICATOR -->
 {#snippet circleIndicator(value, label, description, color)}
 	<div class="flex items-center gap-4">

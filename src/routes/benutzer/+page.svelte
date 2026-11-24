@@ -16,6 +16,10 @@
 	}
 </script>
 
+<svelte:head>
+	<title>{m.admin_breadcrumb()} · BioBox</title>
+</svelte:head>
+
 <div class="min-h-screen bg-[#E7ECE8] px-9 py-6">
 	<div class="mx-auto max-w-[1400px]">
 		<AppHeader active="benutzer" />
