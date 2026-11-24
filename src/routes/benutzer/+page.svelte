@@ -1,10 +1,18 @@
 <script>
 	import AppHeader from '$lib/components/AppHeader.svelte';
+	import * as m from '$lib/paraglide/messages.js';
+	import { getLocale } from '$lib/paraglide/runtime.js';
 
 	let { data, form } = $props();
 
+	function currentLocale() {
+		if (getLocale() === 'en') return 'en-US';
+		if (getLocale() === 'sq') return 'sq-AL';
+		return 'de-DE';
+	}
+
 	function formatDate(date) {
-		return new Date(date).toLocaleDateString('de-DE');
+		return new Date(date).toLocaleDateString(currentLocale());
 	}
 </script>
 
@@ -16,22 +24,21 @@
 			<div class="flex items-end justify-between">
 				<div>
 					<p class="text-xs font-semibold uppercase tracking-[0.16em] text-[#55705F]">
-						Benutzerverwaltung
+						{m.admin_breadcrumb()}
 					</p>
 
 					<h1 class="mt-3 text-4xl font-semibold tracking-tight text-[#173D2B]">
-						Benutzer verwalten
+						{m.admin_title()}
 					</h1>
 
 					<p class="mt-3 max-w-2xl text-sm leading-6 text-[#607267]">
-						Verwalte Benutzerkonten und lege fest, welche Personen Zugriff
-						auf administrative Funktionen der BioBox haben.
+						{m.admin_intro()}
 					</p>
 				</div>
 
 				<div class="rounded-xl border border-[#CFD9D1] bg-[#F4F6F3] px-4 py-3">
 					<p class="text-xs text-[#6C7E72]">
-						Registrierte Benutzer
+						{m.admin_registered_users()}
 					</p>
 
 					<p class="mt-1 text-xl font-semibold text-[#173D2B]">
@@ -42,7 +49,7 @@
 
 			{#if form?.success}
 				<div class="mt-6 rounded-xl border border-[#BFCDBF] bg-[#DDE9D9] px-5 py-4 text-sm font-medium text-[#244E33]">
-					Benutzerrolle wurde geändert.
+					{m.admin_role_changed()}
 				</div>
 			{/if}
 
@@ -57,23 +64,23 @@
 					<thead>
 						<tr class="border-b border-[#CBD6CE] bg-[#234B35]">
 							<th class="px-6 py-4 text-xs font-semibold uppercase tracking-[0.08em] text-[#E9F0EA]">
-								Benutzer
+								{m.admin_user()}
 							</th>
 
 							<th class="px-6 py-4 text-xs font-semibold uppercase tracking-[0.08em] text-[#E9F0EA]">
-								E-Mail
+								{m.admin_email()}
 							</th>
 
 							<th class="px-6 py-4 text-xs font-semibold uppercase tracking-[0.08em] text-[#E9F0EA]">
-								Registriert
+								{m.admin_registered()}
 							</th>
 
 							<th class="px-6 py-4 text-xs font-semibold uppercase tracking-[0.08em] text-[#E9F0EA]">
-								Rolle
+								{m.admin_role()}
 							</th>
 
 							<th class="px-6 py-4 text-xs font-semibold uppercase tracking-[0.08em] text-[#E9F0EA]">
-								Aktion
+								{m.admin_action()}
 							</th>
 						</tr>
 					</thead>
@@ -94,7 +101,7 @@
 
 											{#if user.id === data.user?.id}
 												<p class="mt-0.5 text-xs text-[#6B7C70]">
-													Dein Konto
+													{m.admin_your_account()}
 												</p>
 											{/if}
 										</div>
@@ -115,14 +122,16 @@
 											? 'inline-flex rounded-full bg-[#234B35] px-3 py-1.5 text-xs font-semibold text-white'
 											: 'inline-flex rounded-full bg-[#E1E8E1] px-3 py-1.5 text-xs font-semibold text-[#40584A]'}
 									>
-										{user.role === 'admin' ? 'Admin' : 'Viewer'}
+										{user.role === 'admin'
+											? m.admin_administrator()
+											: m.admin_viewer()}
 									</span>
 								</td>
 
 								<td class="px-6 py-5">
 									{#if user.id === data.user?.id}
 										<span class="text-sm text-[#7A8B80]">
-											Eigenes Konto
+											{m.admin_own_account()}
 										</span>
 									{:else}
 										<form
@@ -140,14 +149,14 @@
 												<select
 													name="role"
 													value={user.role}
-													class="w-28 appearance-none rounded-lg border border-[#C8D2CA] bg-white py-2 pl-3 pr-8 text-sm font-medium text-[#284333] outline-none focus:border-[#73947B]"
+													class="w-40 appearance-none rounded-lg border border-[#C8D2CA] bg-white py-2 pl-3 pr-8 text-sm font-medium text-[#284333] outline-none focus:border-[#73947B]"
 												>
 													<option value="viewer">
-														Viewer
+														{m.admin_viewer()}
 													</option>
 
 													<option value="admin">
-														Admin
+														{m.admin_administrator()}
 													</option>
 												</select>
 
@@ -160,7 +169,7 @@
 												type="submit"
 												class="rounded-lg border border-[#31573F] bg-[#31573F] px-3 py-2 text-xs font-semibold text-white hover:bg-[#284A35]"
 											>
-												Speichern
+												{m.admin_save()}
 											</button>
 										</form>
 									{/if}

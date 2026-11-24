@@ -1,5 +1,6 @@
 import { redirect, fail } from '@sveltejs/kit';
 import { db } from '$lib/server/db.js';
+import * as m from '$lib/paraglide/messages.js';
 
 export async function load({ locals }) {
 	if (locals.user.role !== 'admin') {
@@ -26,7 +27,7 @@ export const actions = {
 	changeRole: async ({ request, locals }) => {
 		if (locals.user.role !== 'admin') {
 			return fail(403, {
-				error: 'Keine Berechtigung.'
+				error: m.admin_error_permission()
 			});
 		}
 
@@ -37,13 +38,13 @@ export const actions = {
 
 		if (!userId) {
 			return fail(400, {
-				error: 'Benutzer fehlt.'
+				error: m.admin_error_missing_user()
 			});
 		}
 
 		if (!['viewer', 'admin'].includes(role)) {
 			return fail(400, {
-				error: 'Ungültige Rolle.'
+				error: m.admin_error_invalid_role()
 			});
 		}
 
@@ -57,7 +58,7 @@ export const actions = {
 
 		if (users.length === 0) {
 			return fail(404, {
-				error: 'Benutzer wurde nicht gefunden.'
+				error: m.admin_error_user_not_found()
 			});
 		}
 
