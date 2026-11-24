@@ -47,7 +47,6 @@
 
 	function currentLocale() {
 		if (getLocale() === 'en') return 'en-US';
-		if (getLocale() === 'sq') return 'sq-AL';
 		return 'de-DE';
 	}
 
@@ -72,7 +71,14 @@
 			return m.live_no_measurement();
 		}
 
-		return date.toLocaleString(currentLocale());
+		return date.toLocaleString(currentLocale(), {
+			day: '2-digit',
+			month: '2-digit',
+			year: '2-digit',
+			hour: '2-digit',
+			minute: '2-digit',
+			second: '2-digit'
+		});
 	}
 
 	function dataIsFresh() {

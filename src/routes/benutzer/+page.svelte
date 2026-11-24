@@ -7,12 +7,21 @@
 
 	function currentLocale() {
 		if (getLocale() === 'en') return 'en-US';
-		if (getLocale() === 'sq') return 'sq-AL';
 		return 'de-DE';
 	}
 
-	function formatDate(date) {
-		return new Date(date).toLocaleDateString(currentLocale());
+	function formatDate(value) {
+		if (!value) return '–';
+
+		const date = new Date(value);
+
+		if (!Number.isFinite(date.getTime())) return '–';
+
+		return date.toLocaleDateString(currentLocale(), {
+			day: '2-digit',
+			month: '2-digit',
+			year: '2-digit'
+		});
 	}
 </script>
 

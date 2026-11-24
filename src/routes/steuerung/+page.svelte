@@ -54,8 +54,13 @@
 
 	function currentLocale() {
 		if (getLocale() === 'en') return 'en-US';
-		if (getLocale() === 'sq') return 'sq-AL';
 		return 'de-DE';
+	}
+
+	function formatNumber(value) {
+		return Number(value).toLocaleString(currentLocale(), {
+			maximumFractionDigits: 1
+		});
 	}
 
 	function componentIsActive(id) {
@@ -68,15 +73,15 @@
 
 	function componentValue(id) {
 		if (id === 'water') {
-			return `${Number(status.pump_water_ms) || 0} ms`;
+			return `${formatNumber(Number(status.pump_water_ms) || 0)} ms`;
 		}
 
 		if (id === 'light') {
-			return `${Number(status.led_duty_pct) || 0} %`;
+			return `${formatNumber(Number(status.led_duty_pct) || 0)} %`;
 		}
 
 		if (id === 'fan') {
-			return `${Number(status.fan_duty_pct) || 0} %`;
+			return `${formatNumber(Number(status.fan_duty_pct) || 0)} %`;
 		}
 
 		return '–';

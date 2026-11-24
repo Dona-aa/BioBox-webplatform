@@ -59,7 +59,6 @@
 
 	function currentLocale() {
 		if (getLocale() === 'en') return 'en-US';
-		if (getLocale() === 'sq') return 'sq-AL';
 		return 'de-DE';
 	}
 
@@ -89,13 +88,13 @@
 		return date.toLocaleString(currentLocale(), {
 			day: '2-digit',
 			month: '2-digit',
-			year: 'numeric',
+			year: '2-digit',
 			hour: '2-digit',
 			minute: '2-digit'
 		});
 	}
 
-	// Unterstützt bereits berechnete SVG-Koordinaten aus dem Backend.
+	// SVG-Koordinaten aus dem Backend
 	function getChartPoints(points) {
 		if (typeof points === 'string') return points;
 

@@ -11,7 +11,6 @@
 
 	function currentLocale() {
 		if (getLocale() === 'en') return 'en-US';
-		if (getLocale() === 'sq') return 'sq-AL';
 		return 'de-DE';
 	}
 
@@ -42,7 +41,7 @@
 		return date.toLocaleString(currentLocale(), {
 			day: '2-digit',
 			month: '2-digit',
-			year: 'numeric',
+			year: '2-digit',
 			hour: '2-digit',
 			minute: '2-digit'
 		});
@@ -181,6 +180,7 @@
 					<p class="mt-0.5 text-[11px] text-[#829087]">
 						{m.plant_refresh_interval()}
 					</p>
+
 				</div>
 
 			</div>
