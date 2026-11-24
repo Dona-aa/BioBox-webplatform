@@ -395,5 +395,10 @@
   "admin_error_invalid_role": "Invalid role.",
   "admin_error_user_not_found": "User not found.",
     "alert_type_soil_moisture_low": "Low soil moisture",
-  "alert_type_unknown": "System notification"
+  "alert_type_unknown": "System notification",
+    "validation_email_invalid": "Please enter a valid email address.",
+  "validation_email_required": "Please enter your email address.",
+  "validation_password_required": "Please enter your password.",
+  "validation_password_min_length": "The password must contain at least 8 characters.",
+  "validation_username_required": "Please enter your username."
 }

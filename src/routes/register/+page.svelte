@@ -4,6 +4,42 @@
 
 	let { form } = $props();
 	let showPassword = $state(false);
+
+	function validateUsername(event) {
+		const input = event.currentTarget;
+
+		input.setCustomValidity('');
+
+		if (input.value.trim() === '') {
+			input.setCustomValidity(m.validation_username_required());
+		} else if (input.value.trim().length < 3) {
+			input.setCustomValidity(m.register_username_short());
+		}
+	}
+
+	function validateEmail(event) {
+		const input = event.currentTarget;
+
+		input.setCustomValidity('');
+
+		if (input.validity.valueMissing) {
+			input.setCustomValidity(m.validation_email_required());
+		} else if (input.validity.typeMismatch) {
+			input.setCustomValidity(m.validation_email_invalid());
+		}
+	}
+
+	function validatePassword(event) {
+		const input = event.currentTarget;
+
+		input.setCustomValidity('');
+
+		if (input.validity.valueMissing) {
+			input.setCustomValidity(m.validation_password_required());
+		} else if (input.value.length < 8) {
+			input.setCustomValidity(m.validation_password_min_length());
+		}
+	}
 </script>
 
 <svelte:head>
@@ -26,6 +62,7 @@
 		<div class="relative z-10 flex flex-1 flex-col justify-center px-12 py-20 xl:px-16">
 			<div class="mb-10 flex items-center gap-3">
 				<span class="h-px w-9 bg-[#A9C4B0]"></span>
+
 				<p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#A9C4B0]">
 					{m.login_monitoring()}
 				</p>
@@ -61,6 +98,7 @@
 						<p class="text-[13px] font-semibold text-[#EAF0EA]">
 							{m.register_sensors()}
 						</p>
+
 						<p class="mt-1 text-[12px] text-[#9FB5A5]">
 							{m.register_sensors_detail()}
 						</p>
@@ -87,6 +125,7 @@
 						<p class="text-[13px] font-semibold text-[#EAF0EA]">
 							{m.register_analysis()}
 						</p>
+
 						<p class="mt-1 text-[12px] text-[#9FB5A5]">
 							{m.register_analysis_detail()}
 						</p>
@@ -112,6 +151,7 @@
 						<p class="text-[13px] font-semibold text-[#EAF0EA]">
 							{m.register_manage()}
 						</p>
+
 						<p class="mt-1 text-[12px] text-[#9FB5A5]">
 							{m.register_manage_detail()}
 						</p>
@@ -121,8 +161,13 @@
 		</div>
 
 		<div class="relative z-10 flex items-center justify-between border-t border-[#405548] px-12 py-7 xl:px-16">
-			<p class="text-[11px] text-[#90A998]">BioBox · {m.login_monitoring()}</p>
-			<p class="text-[11px] text-[#90A998]">{m.login_technology()}</p>
+			<p class="text-[11px] text-[#90A998]">
+				BioBox · {m.login_monitoring()}
+			</p>
+
+			<p class="text-[11px] text-[#90A998]">
+				{m.login_technology()}
+			</p>
 		</div>
 	</section>
 
@@ -192,7 +237,10 @@
 					<div role="alert" class="mb-6 rounded-lg border border-[#DAB9B4] bg-[#F3E8E6] px-4 py-3.5">
 						<div class="flex items-start gap-3">
 							<span aria-hidden="true" class="mt-0.5 text-[#AD625C]">!</span>
-							<p class="text-[12px] leading-5 text-[#945E56]">{form.error}</p>
+
+							<p class="text-[12px] leading-5 text-[#945E56]">
+								{form.error}
+							</p>
 						</div>
 					</div>
 				{/if}
@@ -218,6 +266,7 @@
 								<h3 class="text-[14px] font-semibold text-[#365C43]">
 									{m.register_success_title()}
 								</h3>
+
 								<p class="mt-1 text-[12px] leading-5 text-[#64806B]">
 									{m.register_success_detail()}
 								</p>
@@ -245,6 +294,9 @@
 								type="text"
 								autocomplete="username"
 								required
+								minlength="3"
+								oninvalid={validateUsername}
+								oninput={validateUsername}
 								placeholder={m.register_username_hint()}
 								class="mt-2.5 w-full rounded-lg border border-[#CED9D0] bg-[#F8FAF7] px-4 py-3.5 text-[14px] text-[#25332B] outline-none transition-colors placeholder:text-[#A1ADA4] focus:border-[#487C69] focus:ring-2 focus:ring-[#487C69]/10"
 							/>
@@ -261,6 +313,8 @@
 								type="email"
 								autocomplete="email"
 								required
+								oninvalid={validateEmail}
+								oninput={validateEmail}
 								placeholder={m.login_email_example()}
 								class="mt-2.5 w-full rounded-lg border border-[#CED9D0] bg-[#F8FAF7] px-4 py-3.5 text-[14px] text-[#25332B] outline-none transition-colors placeholder:text-[#A1ADA4] focus:border-[#487C69] focus:ring-2 focus:ring-[#487C69]/10"
 							/>
@@ -278,6 +332,9 @@
 									type={showPassword ? 'text' : 'password'}
 									autocomplete="new-password"
 									required
+									minlength="8"
+									oninvalid={validatePassword}
+									oninput={validatePassword}
 									aria-describedby="password-help"
 									placeholder={m.register_password_hint()}
 									class="w-full rounded-lg border border-[#CED9D0] bg-[#F8FAF7] px-4 py-3.5 pr-20 text-[14px] text-[#25332B] outline-none transition-colors placeholder:text-[#A1ADA4] focus:border-[#487C69] focus:ring-2 focus:ring-[#487C69]/10"
@@ -303,6 +360,7 @@
 							class="mt-2 flex w-full items-center justify-between rounded-lg bg-[#1C2B23] px-5 py-4 text-[13px] font-semibold text-[#F1F4F0] transition-colors hover:bg-[#304437]"
 						>
 							<span>{m.home_register()}</span>
+
 							<svg
 								viewBox="0 0 24 24"
 								fill="none"
@@ -319,6 +377,7 @@
 					<div class="mt-8 border-t border-[#DCE4DD] pt-7">
 						<p class="text-center text-[13px] text-[#7B8980]">
 							{m.register_has_account()}
+
 							<a
 								href="/login"
 								class="ml-1 font-semibold text-[#416B50] transition-colors hover:text-[#25332B]"
@@ -332,7 +391,9 @@
 		</div>
 
 		<div class="border-t border-[#E0E7E1] px-6 py-6 text-center sm:px-12">
-			<p class="text-[11px] text-[#9AA79E]">© BioBox · {m.login_monitoring()}</p>
+			<p class="text-[11px] text-[#9AA79E]">
+				© BioBox · {m.login_monitoring()}
+			</p>
 		</div>
 	</section>
 </div>

@@ -395,5 +395,10 @@
   "admin_error_invalid_role": "Rol i pavlefshëm.",
   "admin_error_user_not_found": "Përdoruesi nuk u gjet.",
     "alert_type_soil_moisture_low": "Lagështi e ulët e tokës",
-  "alert_type_unknown": "Njoftim i sistemit"
+  "alert_type_unknown": "Njoftim i sistemit",
+    "validation_email_invalid": "Ju lutem, vendosni një adresë të vlefshme emaili.",
+  "validation_email_required": "Ju lutem, vendosni adresën tuaj të emailit.",
+  "validation_password_required": "Ju lutem, vendosni fjalëkalimin tuaj.",
+  "validation_password_min_length": "Fjalëkalimi duhet të përmbajë të paktën 8 karaktere.",
+  "validation_username_required": "Ju lutem, vendosni emrin tuaj të përdoruesit."
 }
