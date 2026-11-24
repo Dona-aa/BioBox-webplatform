@@ -1,6 +1,8 @@
 <script>
 	import { onMount } from 'svelte';
 	import AppHeader from '$lib/components/AppHeader.svelte';
+	import * as m from '$lib/paraglide/messages.js';
+	import { getLocale } from '$lib/paraglide/runtime.js';
 
 	let { data } = $props();
 
@@ -13,42 +15,48 @@
 	const sensors = [
 		{
 			key: 'temperature',
-			name: 'Lufttemperatur',
+			name: m.live_air_temperature(),
 			unit: '°C',
 			color: '#487C69'
 		},
 		{
 			key: 'humidity',
-			name: 'Luftfeuchtigkeit',
+			name: m.live_humidity(),
 			unit: '%',
 			color: '#648A9B'
 		},
 		{
 			key: 'soilMoisture',
-			name: 'Bodenfeuchte',
+			name: m.live_soil_moisture(),
 			unit: '%',
 			color: '#A17F60'
 		},
 		{
 			key: 'soilTemperature',
-			name: 'Bodentemperatur',
+			name: m.live_soil_temperature(),
 			unit: '°C',
 			color: '#487C69'
 		},
 		{
 			key: 'light',
-			name: 'Lichtstärke',
+			name: m.live_light(),
 			unit: 'lux',
 			color: '#857B9D'
 		}
 	];
+
+	function currentLocale() {
+		if (getLocale() === 'en') return 'en-US';
+		if (getLocale() === 'sq') return 'sq-AL';
+		return 'de-DE';
+	}
 
 	function formatValue(value, unit = '') {
 		if (value == null || !Number.isFinite(Number(value))) {
 			return '–';
 		}
 
-		const number = Number(value).toLocaleString('de-DE', {
+		const number = Number(value).toLocaleString(currentLocale(), {
 			maximumFractionDigits: 1
 		});
 
@@ -56,15 +64,15 @@
 	}
 
 	function formatDate(value) {
-		if (!value) return 'Keine Messung vorhanden';
+		if (!value) return m.live_no_measurement();
 
 		const date = new Date(value);
 
 		if (Number.isNaN(date.getTime())) {
-			return 'Keine Messung vorhanden';
+			return m.live_no_measurement();
 		}
 
-		return date.toLocaleString('de-DE');
+		return date.toLocaleString(currentLocale());
 	}
 
 	function dataIsFresh() {
@@ -119,7 +127,7 @@
 				};
 
 				if (manual) {
-					refreshMessage = 'Keine Sensordaten vorhanden.';
+					refreshMessage = m.live_no_sensor_data();
 				}
 			} else {
 				const previousMeasurement = sensorData.measuredAt;
@@ -135,10 +143,9 @@
 
 				if (manual) {
 					if (previousMeasurement !== telemetry.measured_at) {
-						refreshMessage = 'Neue Messwerte geladen.';
+						refreshMessage = m.live_new_readings();
 					} else {
-						refreshMessage =
-							'Abfrage erfolgreich. Es liegen noch keine neueren Messwerte vor.';
+						refreshMessage = m.live_no_new_readings();
 					}
 				}
 			}
@@ -146,7 +153,7 @@
 			connectionError = true;
 
 			if (manual) {
-				refreshMessage = 'Aktualisierung fehlgeschlagen.';
+				refreshMessage = m.live_refresh_failed();
 			}
 
 			console.error('Fehler beim Aktualisieren der Sensordaten:', error);
@@ -177,15 +184,15 @@
 		<div class="mb-8 flex flex-wrap items-center justify-between gap-5">
 			<div>
 				<p class="text-[12px] text-[#77847B]">
-					BioBox / Monitoring
+					{m.live_monitoring()}
 				</p>
 
 				<h1 class="mt-2 text-[27px] font-semibold tracking-tight">
-					Live-Monitoring
+					{m.live_title()}
 				</h1>
 
 				<p class="mt-1 text-[13px] text-[#77847B]">
-					Sensorwerte und Umgebungsbedingungen
+					{m.live_intro()}
 				</p>
 			</div>
 
@@ -196,7 +203,7 @@
 					disabled={updating}
 					class="rounded-lg bg-[#1C2B23] px-5 py-3 text-[12px] font-medium text-[#E8EBE9] transition-colors hover:bg-[#304437] disabled:cursor-not-allowed disabled:opacity-60"
 				>
-					{updating ? 'Aktualisiere …' : 'Messwerte aktualisieren →'}
+					{updating ? m.live_updating() : `${m.live_refresh()} →`}
 				</button>
 
 				{#if refreshMessage}
@@ -224,22 +231,22 @@
 				<div>
 					<p class="text-[13px] font-semibold">
 						{#if connectionError}
-							Datenquelle nicht erreichbar
+							{m.live_connection_error()}
 						{:else if dataIsFresh()}
-							Aktuelle Messdaten verfügbar
+							{m.live_fresh_data()}
 						{:else}
-							Keine aktuellen Messdaten
+							{m.live_no_fresh_data()}
 						{/if}
 					</p>
 
 					<p class="mt-0.5 text-[11px] text-[#87928A]">
-						Letzte Messung: {formatDate(sensorData.measuredAt)}
+						{m.live_last_measurement()}: {formatDate(sensorData.measuredAt)}
 					</p>
 				</div>
 			</div>
 
 			<p class="text-[12px] text-[#77847B]">
-				Automatische Abfrage alle 5 Sekunden
+				{m.live_auto_refresh()}
 			</p>
 		</div>
 
@@ -252,16 +259,16 @@
 				<div class="flex flex-wrap items-center justify-between gap-3 border-b border-[#DCE3DD] px-7 py-5">
 					<div>
 						<h2 class="text-[15px] font-semibold">
-							Lufttemperatur
+							{m.live_air_temperature()}
 						</h2>
 
 						<p class="mt-1 text-[12px] text-[#87928A]">
-							Aktuell gemessene Temperatur
+							{m.live_current_temperature()}
 						</p>
 					</div>
 
 					<span class="rounded-md bg-[#E0EAE2] px-3 py-1.5 text-[11px] font-medium text-[#487C69]">
-						Temperatur
+						{m.live_temperature()}
 					</span>
 				</div>
 
@@ -283,11 +290,11 @@
 
 						<div class="mb-4 flex items-center justify-between">
 							<h3 class="text-[12px] font-semibold text-[#52695A]">
-								Temperaturmessung
+								{m.live_temperature_measurement()}
 							</h3>
 
 							<span class="text-[11px] text-[#87928A]">
-								Lufttemperatur
+								{m.live_air_temperature()}
 							</span>
 						</div>
 
@@ -309,8 +316,7 @@
 						</div>
 
 						<p class="mt-5 text-[11px] leading-5 text-[#87928A]">
-							Anzeige auf einer Messskala von 0 bis 50 °C.
-							Die Skala stellt keinen empfohlenen Temperaturbereich dar.
+							{m.live_temperature_scale()}
 						</p>
 
 					</div>
@@ -322,11 +328,11 @@
 
 				<div class="border-b border-[#DCE3DD] px-6 py-5">
 					<h2 class="text-[15px] font-semibold">
-						Weitere Sensorwerte
+						{m.live_other_sensors()}
 					</h2>
 
 					<p class="mt-1 text-[12px] text-[#87928A]">
-						Zuletzt empfangene Messungen
+						{m.live_latest_readings()}
 					</p>
 				</div>
 
@@ -362,7 +368,7 @@
 						href="/verlauf"
 						class="inline-flex items-center gap-2 text-[12px] font-semibold text-[#416B50] hover:text-[#25332B]"
 					>
-						Historische Messwerte ansehen →
+						{m.live_view_history()} →
 					</a>
 				</div>
 			</section>
@@ -374,11 +380,11 @@
 
 			<div class="mb-4 flex flex-wrap items-center justify-between gap-4">
 				<h2 class="text-[15px] font-semibold">
-					Feuchtigkeitsmonitoring
+					{m.live_moisture_monitoring()}
 				</h2>
 
 				<span class="text-[12px] text-[#87928A]">
-					Aktuelle Prozentwerte
+					{m.live_current_percentages()}
 				</span>
 			</div>
 
@@ -389,7 +395,7 @@
 
 					<div class="flex items-center justify-between gap-3">
 						<h3 class="text-[13px] font-semibold">
-							Luftfeuchtigkeit
+							{m.live_humidity()}
 						</h3>
 
 						<span class="text-[12px] font-semibold tabular-nums">
@@ -417,7 +423,7 @@
 
 					<div class="flex items-center justify-between gap-3">
 						<h3 class="text-[13px] font-semibold">
-							Bodenfeuchte
+							{m.live_soil_moisture()}
 						</h3>
 
 						<span class="text-[12px] font-semibold tabular-nums">
@@ -448,14 +454,14 @@
 		<div class="mt-7 flex flex-wrap items-center justify-between gap-4 border-t border-[#CAD5CC] pt-5">
 
 			<p class="text-[12px] text-[#77847B]">
-				Letzte Messung: {formatDate(sensorData.measuredAt)}
+				{m.live_last_measurement()}: {formatDate(sensorData.measuredAt)}
 			</p>
 
 			<a
 				href="/dashboard"
 				class="text-[12px] font-semibold text-[#416B50] hover:text-[#25332B]"
 			>
-				Zur Systemübersicht →
+				{m.live_back_dashboard()} →
 			</a>
 
 		</div>
