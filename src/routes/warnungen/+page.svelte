@@ -19,8 +19,7 @@
 
 	let criticalCount = $derived(
 		alerts.filter(
-			(alert) =>
-				!alert.is_resolved && alert.severity === 'critical'
+			(alert) => !alert.is_resolved && alert.severity === 'critical'
 		).length
 	);
 
@@ -86,6 +85,14 @@
 			hour: '2-digit',
 			minute: '2-digit'
 		});
+	}
+
+	function alertTypeLabel(type) {
+		if (type === 'soil_moisture_low') {
+			return m.alert_type_soil_moisture_low();
+		}
+
+		return m.alert_type_unknown();
 	}
 
 	function severityLabel(severity) {
@@ -157,7 +164,6 @@
 
 		</div>
 
-
 		<!-- SUMMARY -->
 		<section class="mt-8 overflow-hidden rounded-xl border border-[#CBD5CD] bg-[#F2F4F1]">
 
@@ -177,7 +183,6 @@
 					</div>
 				</div>
 
-
 				<div class="px-6 py-5">
 					<p class="text-[11px] font-medium text-[#7A877E]">
 						{m.alerts_active()}
@@ -192,7 +197,6 @@
 					</div>
 				</div>
 
-
 				<div class="px-6 py-5">
 					<p class="text-[11px] font-medium text-[#7A877E]">
 						{m.alerts_critical()}
@@ -206,7 +210,6 @@
 						<span class="h-2 w-2 rounded-full bg-[#AD625C]"></span>
 					</div>
 				</div>
-
 
 				<div class="px-6 py-5">
 					<p class="text-[11px] font-medium text-[#7A877E]">
@@ -226,7 +229,6 @@
 
 		</section>
 
-
 		<!-- LIST HEADER -->
 		<div class="mt-10 flex items-center justify-between gap-6">
 
@@ -239,7 +241,6 @@
 					{m.alerts_system_description()}
 				</p>
 			</div>
-
 
 			<div class="flex gap-1 rounded-lg border border-[#CBD5CD] bg-[#F2F4F1] p-1">
 
@@ -270,7 +271,6 @@
 
 		</div>
 
-
 		<!-- LIST -->
 		<section class="mt-4 overflow-hidden rounded-xl border border-[#CBD5CD] bg-[#F2F4F1]">
 
@@ -289,7 +289,6 @@
 				</p>
 
 			</div>
-
 
 			{#if filteredAlerts.length === 0}
 
@@ -383,7 +382,6 @@
 
 									</div>
 
-
 									<div class="min-w-0">
 
 										<div class="flex items-center gap-2">
@@ -398,7 +396,7 @@
 											</span>
 
 											<span class="text-[10px] uppercase tracking-[0.08em] text-[#9AA59C]">
-												{alert.alert_type}
+												{alertTypeLabel(alert.alert_type)}
 											</span>
 
 										</div>
@@ -434,7 +432,6 @@
 									</div>
 
 								</div>
-
 
 								<div class="flex shrink-0 items-center gap-3">
 
@@ -491,7 +488,6 @@
 			{/if}
 
 		</section>
-
 
 		<div class="mt-5 flex items-center justify-between border-t border-[#CAD5CC] pt-5">
 

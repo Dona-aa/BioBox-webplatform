@@ -63,19 +63,36 @@ export async function POST({ request }) {
 		);
 	}
 
+	// Übersetzungen der Warnmeldung
+	let message_de = data.message_de ?? message;
+	let message_en = data.message_en ?? null;
+	let message_sq = data.message_sq ?? null;
+
+	if (alert_type === 'soil_moisture_low') {
+		message_de = 'Bodenfeuchtigkeit ist zu niedrig.';
+		message_en = 'Soil moisture is too low.';
+		message_sq = 'Lagështia e tokës është shumë e ulët.';
+	}
+
 	const [result] = await db.execute(
 		`INSERT INTO alerts (
 			device_id,
 			alert_type,
 			severity,
-			message
+			message,
+			message_de,
+			message_en,
+			message_sq
 		)
-		VALUES (?, ?, ?, ?)`,
+		VALUES (?, ?, ?, ?, ?, ?, ?)`,
 		[
 			devices[0].id,
 			alert_type,
 			severity ?? 'warning',
-			message
+			message,
+			message_de,
+			message_en,
+			message_sq
 		]
 	);
 

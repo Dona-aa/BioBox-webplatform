@@ -393,5 +393,7 @@
   "admin_error_permission": "Permission denied.",
   "admin_error_missing_user": "User is missing.",
   "admin_error_invalid_role": "Invalid role.",
-  "admin_error_user_not_found": "User not found."
+  "admin_error_user_not_found": "User not found.",
+    "alert_type_soil_moisture_low": "Low soil moisture",
+  "alert_type_unknown": "System notification"
 }

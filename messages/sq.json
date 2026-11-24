@@ -393,5 +393,7 @@
   "admin_error_permission": "Nuk ke autorizim.",
   "admin_error_missing_user": "Mungon përdoruesi.",
   "admin_error_invalid_role": "Rol i pavlefshëm.",
-  "admin_error_user_not_found": "Përdoruesi nuk u gjet."
+  "admin_error_user_not_found": "Përdoruesi nuk u gjet.",
+    "alert_type_soil_moisture_low": "Lagështi e ulët e tokës",
+  "alert_type_unknown": "Njoftim i sistemit"
 }

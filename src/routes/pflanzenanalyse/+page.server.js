@@ -1,6 +1,9 @@
 import { db } from '$lib/server/db.js';
+import { getLocale } from '$lib/paraglide/runtime.js';
 
 export async function load() {
+	const language = getLocale();
+
 	const [rows] = await db.execute(`
 		SELECT
 			images.id AS image_id,
@@ -15,8 +18,17 @@ export async function load() {
 
 			health_assessments.health_score,
 			health_assessments.health_category,
+			health_assessments.health_category_de,
+			health_assessments.health_category_en,
+			health_assessments.health_category_sq,
+
 			health_assessments.health_trend_24h,
+
 			health_assessments.health_warnings,
+			health_assessments.health_warnings_de,
+			health_assessments.health_warnings_en,
+			health_assessments.health_warnings_sq,
+
 			health_assessments.computed_at
 
 		FROM images
@@ -31,7 +43,17 @@ export async function load() {
 		LIMIT 1
 	`);
 
+	const analysis = rows.length > 0 ? rows[0] : null;
+
+	if (analysis) {
+		analysis.health_category =
+			analysis['health_category_' + language] ?? analysis.health_category;
+
+		analysis.health_warnings =
+			analysis['health_warnings_' + language] ?? analysis.health_warnings;
+	}
+
 	return {
-		analysis: rows.length > 0 ? rows[0] : null
+		analysis
 	};
 }

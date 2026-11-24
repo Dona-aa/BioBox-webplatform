@@ -71,6 +71,16 @@ export async function POST({ request }) {
 		);
 	}
 
+	// Mehrsprachige Gesundheitskategorien
+	const health_category_de = data.health_category_de ?? health_category ?? null;
+	const health_category_en = data.health_category_en ?? null;
+	const health_category_sq = data.health_category_sq ?? null;
+
+	// Mehrsprachige Gesundheitswarnungen
+	const health_warnings_de = data.health_warnings_de ?? health_warnings ?? null;
+	const health_warnings_en = data.health_warnings_en ?? null;
+	const health_warnings_sq = data.health_warnings_sq ?? null;
+
 	const [existingAssessment] = await db.execute(
 		`SELECT id
 		 FROM health_assessments
@@ -88,8 +98,14 @@ export async function POST({ request }) {
 				health_score = ?,
 				health_score_raw = ?,
 				health_category = ?,
+				health_category_de = ?,
+				health_category_en = ?,
+				health_category_sq = ?,
 				health_trend_24h = ?,
 				health_warnings = ?,
+				health_warnings_de = ?,
+				health_warnings_en = ?,
+				health_warnings_sq = ?,
 				score_green = ?,
 				score_yellow = ?,
 				score_brown = ?,
@@ -103,8 +119,14 @@ export async function POST({ request }) {
 				health_score ?? null,
 				health_score_raw ?? null,
 				health_category ?? null,
+				health_category_de,
+				health_category_en,
+				health_category_sq,
 				health_trend_24h ?? null,
 				health_warnings ?? null,
+				health_warnings_de,
+				health_warnings_en,
+				health_warnings_sq,
 				score_green ?? null,
 				score_yellow ?? null,
 				score_brown ?? null,
@@ -128,15 +150,21 @@ export async function POST({ request }) {
 			health_score,
 			health_score_raw,
 			health_category,
+			health_category_de,
+			health_category_en,
+			health_category_sq,
 			health_trend_24h,
 			health_warnings,
+			health_warnings_de,
+			health_warnings_en,
+			health_warnings_sq,
 			score_green,
 			score_yellow,
 			score_brown,
 			score_saturation,
 			score_hue
 		)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		[
 			image_id,
 			reference_id,
@@ -144,8 +172,14 @@ export async function POST({ request }) {
 			health_score ?? null,
 			health_score_raw ?? null,
 			health_category ?? null,
+			health_category_de,
+			health_category_en,
+			health_category_sq,
 			health_trend_24h ?? null,
 			health_warnings ?? null,
+			health_warnings_de,
+			health_warnings_en,
+			health_warnings_sq,
 			score_green ?? null,
 			score_yellow ?? null,
 			score_brown ?? null,

@@ -1,6 +1,9 @@
 import { db } from '$lib/server/db.js';
+import { getLocale } from '$lib/paraglide/runtime.js';
 
 export async function load({ fetch }) {
+	const language = getLocale();
+
 	// Aktuelle Sensordaten
 	const telemetryResponse = await fetch('/api/v1/telemetry');
 	const telemetry = await telemetryResponse.json();
@@ -41,12 +44,20 @@ export async function load({ fetch }) {
 			alert_type,
 			severity,
 			message,
+			message_de,
+			message_en,
+			message_sq,
 			created_at
 		FROM alerts
 		WHERE is_resolved = FALSE
 		ORDER BY created_at DESC
 		LIMIT 1
 	`);
+
+	// Warnung in der ausgewählten Sprache
+	for (const alert of alerts) {
+		alert.message = alert['message_' + language] ?? alert.message;
+	}
 
 	// Prüfen, ob historische Daten aus den letzten 24 Stunden existieren
 	const [periodRows] = await db.execute(`

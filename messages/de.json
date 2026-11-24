@@ -393,5 +393,7 @@
   "admin_error_permission": "Keine Berechtigung.",
   "admin_error_missing_user": "Benutzer fehlt.",
   "admin_error_invalid_role": "Ungültige Rolle.",
-  "admin_error_user_not_found": "Benutzer wurde nicht gefunden."
+  "admin_error_user_not_found": "Benutzer wurde nicht gefunden.",
+    "alert_type_soil_moisture_low": "Niedrige Bodenfeuchtigkeit",
+  "alert_type_unknown": "Systemmeldung"
 }

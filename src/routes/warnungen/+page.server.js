@@ -1,14 +1,20 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { createHash } from 'node:crypto';
 import { db } from '$lib/server/db.js';
+import { getLocale } from '$lib/paraglide/runtime.js';
 
 export async function load() {
+	const language = getLocale();
+
 	const [alerts] = await db.execute(`
 		SELECT
 			id,
 			alert_type,
 			severity,
 			message,
+			message_de,
+			message_en,
+			message_sq,
 			acknowledged_by,
 			acknowledged_at,
 			is_resolved,
@@ -17,6 +23,10 @@ export async function load() {
 		FROM alerts
 		ORDER BY created_at DESC
 	`);
+
+	for (const alert of alerts) {
+		alert.message = alert['message_' + language] ?? alert.message;
+	}
 
 	return {
 		alerts
