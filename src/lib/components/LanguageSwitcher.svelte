@@ -9,7 +9,6 @@
          focus-within:outline-2 focus-within:outline-offset-2
          focus-within:outline-[#A9C4B0]"
 >
-  <!-- Globe -->
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
@@ -28,16 +27,23 @@
     {getLocale()}
   </span>
 
-  <!-- The native select covers the icon and code, so both are clickable. -->
   <select
     aria-label={m.language()}
     title={m.language()}
     value={getLocale()}
     onchange={(event) => setLocale(event.currentTarget.value)}
-    class="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+    class="absolute inset-0 h-full w-full cursor-pointer opacity-0 text-[#1C2B23]"
   >
-    <option value="de" lang="de">Deutsch</option>
-    <option value="en" lang="en">English</option>
-    <option value="sq" lang="sq">Shqip</option>
+    <option value="de" lang="de" class="bg-[#F1F4F0] text-[#1C2B23]">
+      Deutsch
+    </option>
+
+    <option value="en" lang="en" class="bg-[#F1F4F0] text-[#1C2B23]">
+      English
+    </option>
+
+    <option value="sq" lang="sq" class="bg-[#F1F4F0] text-[#1C2B23]">
+      Shqip
+    </option>
   </select>
 </div>

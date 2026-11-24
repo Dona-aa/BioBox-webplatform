@@ -1,6 +1,8 @@
 <script>
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
+	import * as m from '$lib/paraglide/messages.js';
+	import LanguageSwitcher from '$lib/components/LanguageSwitcher.svelte';
 
 	let { active } = $props();
 
@@ -83,122 +85,131 @@
 
 		<!-- NAVIGATION -->
 		<nav
-			class="order-3 flex w-full items-center gap-5 overflow-x-auto border-t border-white/10 pt-2 lg:order-2 lg:w-auto lg:gap-6 lg:overflow-visible lg:border-0 lg:pt-0"
-			aria-label="Plattformnavigation"
+			class="order-3 flex w-full items-center gap-5 overflow-x-auto whitespace-nowrap border-t border-white/10 pt-2 lg:order-2 lg:w-auto lg:gap-4 lg:overflow-visible lg:border-0 lg:pt-0"
+			aria-label={m.header_navigation()}
 		>
 
 			<a href="/dashboard" class={navClass('dashboard')}>
-				Dashboard
+				{m.header_dashboard()}
 			</a>
 
 			<a href="/live-daten" class={navClass('live-daten')}>
-				Live-Daten
+				{m.header_live_data()}
 			</a>
 
 			<a href="/verlauf" class={navClass('verlauf')}>
-				Verlauf
+				{m.header_history()}
 			</a>
 
 			<a href="/steuerung" class={navClass('steuerung')}>
-				Steuerung
+				{m.header_control()}
 			</a>
 
 			<a href="/pflanzenanalyse" class={navClass('pflanzenanalyse')}>
-				Pflanzenanalyse
+				{m.header_plant_analysis()}
 			</a>
 
 			<a href="/warnungen" class={navClass('warnungen')}>
-				Warnungen
+				{m.header_alerts()}
 			</a>
 
 		</nav>
 
-		<!-- PROFILE -->
-		<div class="relative order-2 shrink-0 lg:order-3" bind:this={profileMenu}>
+		<div class="order-2 flex shrink-0 items-center gap-4 lg:order-3">
 
-			<button
-				type="button"
-				onclick={() => profileOpen = !profileOpen}
-				aria-label="Profilmenü öffnen"
-				aria-expanded={profileOpen}
-				class="flex h-10 w-10 items-center justify-center rounded-full border border-[#A9C4B0]/50 bg-[#A9C4B0] text-sm font-semibold text-[#1C2B23] transition-colors hover:bg-[#C4D8C9]"
-			>
-				{getInitials(user?.username)}
-			</button>
+			<!-- LANGUAGE SWITCHER -->
+			<LanguageSwitcher />
 
-			{#if profileOpen}
+			<!-- PROFILE -->
+			<div class="relative shrink-0" bind:this={profileMenu}>
 
-				<div class="absolute right-0 z-50 mt-3 w-64 border border-[#C7D1CA] bg-[#F0F2F0] p-2 shadow-xl">
+				<button
+					type="button"
+					onclick={() => profileOpen = !profileOpen}
+					aria-label={m.header_profile()}
+					aria-expanded={profileOpen}
+					class="flex h-10 w-10 items-center justify-center rounded-full border border-[#A9C4B0]/50 bg-[#A9C4B0] text-sm font-semibold text-[#1C2B23] transition-colors hover:bg-[#C4D8C9]"
+				>
+					{getInitials(user?.username)}
+				</button>
 
-					<div class="px-4 py-4">
+				{#if profileOpen}
 
-						<p class="font-semibold text-[#26312B]">
-							{user?.username}
-						</p>
+					<div class="absolute right-0 z-50 mt-3 w-64 border border-[#C7D1CA] bg-[#F0F2F0] p-2 shadow-xl">
 
-						<p class="mt-1 break-all text-sm text-[#66746B]">
-							{user?.email}
-						</p>
+						<div class="px-4 py-4">
 
-						<p class="mt-2 text-xs font-medium uppercase tracking-[0.1em] text-[#7B8A80]">
-							{user?.role === 'admin' ? 'Admin' : 'Viewer'}
-						</p>
+							<p class="font-semibold text-[#26312B]">
+								{user?.username}
+							</p>
+
+							<p class="mt-1 break-all text-sm text-[#66746B]">
+								{user?.email}
+							</p>
+
+							<p class="mt-2 text-xs font-medium uppercase tracking-[0.1em] text-[#7B8A80]">
+								{user?.role === 'admin'
+									? m.header_admin()
+									: m.header_viewer()}
+							</p>
+
+						</div>
+
+						<div class="border-t border-[#C7D1CA] pt-2">
+
+							{#if user?.role === 'admin'}
+
+								<a
+									href="/benutzer"
+									onclick={() => profileOpen = false}
+									class="block w-full px-4 py-3 text-left text-sm font-medium text-[#26312B] transition-colors hover:bg-[#E0E7E2]"
+								>
+									{m.header_user_management()}
+								</a>
+
+							{/if}
+
+							<form method="POST" action="/logout">
+
+								<input
+									type="hidden"
+									name="redirectTo"
+									value="login"
+								/>
+
+								<button
+									type="submit"
+									class="w-full px-4 py-3 text-left text-sm font-medium text-[#26312B] transition-colors hover:bg-[#E0E7E2]"
+								>
+									{m.header_switch_account()}
+								</button>
+
+							</form>
+
+							<form method="POST" action="/logout">
+
+								<input
+									type="hidden"
+									name="redirectTo"
+									value="home"
+								/>
+
+								<button
+									type="submit"
+									class="w-full px-4 py-3 text-left text-sm font-medium text-[#26312B] transition-colors hover:bg-[#E0E7E2]"
+								>
+									{m.header_logout()}
+								</button>
+
+							</form>
+
+						</div>
 
 					</div>
 
-					<div class="border-t border-[#C7D1CA] pt-2">
+				{/if}
 
-						{#if user?.role === 'admin'}
-
-							<a
-								href="/benutzer"
-								onclick={() => profileOpen = false}
-								class="block w-full px-4 py-3 text-left text-sm font-medium text-[#26312B] transition-colors hover:bg-[#E0E7E2]"
-							>
-								Benutzerverwaltung
-							</a>
-
-						{/if}
-
-						<form method="POST" action="/logout">
-
-							<input
-								type="hidden"
-								name="redirectTo"
-								value="login"
-							/>
-
-							<button
-								type="submit"
-								class="w-full px-4 py-3 text-left text-sm font-medium text-[#26312B] transition-colors hover:bg-[#E0E7E2]"
-							>
-								Konto wechseln
-							</button>
-
-						</form>
-
-						<form method="POST" action="/logout">
-
-							<input
-								type="hidden"
-								name="redirectTo"
-								value="home"
-							/>
-
-							<button
-								type="submit"
-								class="w-full px-4 py-3 text-left text-sm font-medium text-[#26312B] transition-colors hover:bg-[#E0E7E2]"
-							>
-								Abmelden
-							</button>
-
-						</form>
-
-					</div>
-
-				</div>
-
-			{/if}
+			</div>
 
 		</div>
 

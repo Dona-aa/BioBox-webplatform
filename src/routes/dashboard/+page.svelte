@@ -2,6 +2,8 @@
 	import { onMount } from 'svelte';
 	import { invalidateAll } from '$app/navigation';
 	import AppHeader from '$lib/components/AppHeader.svelte';
+	import * as m from '$lib/paraglide/messages.js';
+	import { getLocale } from '$lib/paraglide/runtime.js';
 
 	let { data } = $props();
 
@@ -17,12 +19,18 @@
 		light: '#857B9D'
 	};
 
+	function currentLocale() {
+		if (getLocale() === 'en') return 'en-US';
+		if (getLocale() === 'sq') return 'sq-AL';
+		return 'de-DE';
+	}
+
 	function formatValue(value, unit = '') {
 		if (value == null || !Number.isFinite(Number(value))) {
-			return 'Keine Daten';
+			return m.dashboard_no_data();
 		}
 
-		const number = Number(value).toLocaleString('de-DE', {
+		const number = Number(value).toLocaleString(currentLocale(), {
 			maximumFractionDigits: 1
 		});
 
@@ -36,19 +44,19 @@
 
 		if (!Number.isFinite(date.getTime())) return '–';
 
-		return date.toLocaleDateString('de-DE');
+		return date.toLocaleDateString(currentLocale());
 	}
 
 	function formatDateTime(value) {
-		if (value == null) return 'Keine Messung vorhanden';
+		if (value == null) return m.dashboard_no_measurement();
 
 		const date = new Date(value);
 
 		if (!Number.isFinite(date.getTime())) {
-			return 'Keine Messung vorhanden';
+			return m.dashboard_no_measurement();
 		}
 
-		return date.toLocaleString('de-DE');
+		return date.toLocaleString(currentLocale());
 	}
 
 	function formatShortTime(value) {
@@ -56,7 +64,7 @@
 
 		if (!Number.isFinite(date.getTime())) return '–';
 
-		return date.toLocaleString('de-DE', {
+		return date.toLocaleString(currentLocale(), {
 			day: '2-digit',
 			month: '2-digit',
 			hour: '2-digit',
@@ -196,7 +204,6 @@
 
 	let averageTemperature = $derived(average(temperatureRows));
 
-	// Letzte fünf Lichtmessungen für eine übersichtliche Darstellung
 	let recentLightRows = $derived(lightRows.slice(-5));
 
 	let maximumLight = $derived(
@@ -222,7 +229,6 @@
 {#snippet gauge(value, label, color)}
 	<div class="flex flex-col items-center">
 		<div class="relative aspect-square w-full max-w-[150px]">
-
 			<svg
 				viewBox="0 0 120 120"
 				class="h-full w-full -rotate-90"
@@ -255,7 +261,6 @@
 					{value == null ? '–' : `${formatValue(value)}%`}
 				</span>
 			</div>
-
 		</div>
 
 		<p class="mt-3 text-center text-[12px] font-medium">
@@ -272,18 +277,17 @@
 
 		<!-- SEITENKOPF -->
 		<div class="mb-7 flex flex-wrap items-center justify-between gap-5">
-
 			<div>
 				<p class="text-[12px] text-[#77847B]">
-					BioBox / Analytics
+					{m.dashboard_analytics()}
 				</p>
 
 				<h1 class="mt-2 text-[27px] font-semibold tracking-tight">
-					Systemübersicht
+					{m.dashboard_overview()}
 				</h1>
 
 				<p class="mt-1 text-[13px] text-[#77847B]">
-					Messwerte, Verteilungen und Systemzustand
+					{m.dashboard_intro()}
 				</p>
 			</div>
 
@@ -291,33 +295,27 @@
 				<span class="h-2 w-2 rounded-full bg-[#487C69]"></span>
 
 				<span class="text-[12px] text-[#566A5D]">
-					Aktualisierung alle 5 Sekunden
+					{m.dashboard_refresh()}
 				</span>
 			</div>
-
 		</div>
 
 		<!-- HISTORISCHE DATEN -->
 		{#if !data.hasRecentData && data.chartHistory.length > 0}
-
 			<div class="mb-6 rounded-lg border border-[#CED8D0] bg-[#DBE5DD] px-5 py-4">
-
 				<p class="text-[13px] font-semibold">
-					Historische Messdaten
+					{m.dashboard_history_title()}
 				</p>
 
 				<p class="mt-1 text-[12px] text-[#68796D]">
-					Die Diagramme zeigen den letzten verfügbaren Zeitraum:
+					{m.dashboard_history_hint()}
 					{formatDate(periodStart)} – {formatDate(data.chartEnd)}
 				</p>
-
 			</div>
-
 		{/if}
 
 		<!-- WARNUNGEN -->
 		{#if data.latestAlert}
-
 			<div
 				class={data.latestAlert.severity === 'critical'
 					? 'mb-6 rounded-lg border border-red-300 bg-red-50 px-5 py-4'
@@ -326,30 +324,27 @@
 						: 'mb-6 rounded-lg border border-[#BDD4C3] bg-[#DFEAE1] px-5 py-4'}
 			>
 				<p class="text-[13px] font-semibold">
-					Systemmeldung
+					{m.dashboard_alert()}
 				</p>
 
 				<p class="mt-1 text-[13px]">
 					{data.latestAlert.message}
 				</p>
 			</div>
-
 		{/if}
 
 		<!-- AKTUELLE MESSWERTE -->
 		<div class="mb-4 flex items-center justify-between gap-4">
-
 			<h2 class="text-[15px] font-semibold">
-				Aktuelle Messwerte
+				{m.dashboard_readings()}
 			</h2>
 
 			<a
 				href="/live-daten"
 				class="text-[12px] font-medium text-[#416B50] hover:text-[#25332B]"
 			>
-				Alle Messwerte →
+				{m.dashboard_all_readings()} →
 			</a>
-
 		</div>
 
 		<!-- KPI-KARTEN -->
@@ -357,10 +352,9 @@
 
 			<!-- LUFTTEMPERATUR -->
 			<div class="rounded-xl border border-[#CED8D0] bg-[#F1F4F0] p-6">
-
 				<div class="flex items-center justify-between gap-3">
 					<p class="text-[13px] font-medium text-[#68786E]">
-						Lufttemperatur
+						{m.dashboard_air_temperature()}
 					</p>
 
 					<span class="h-2 w-2 rounded-full bg-[#487C69]"></span>
@@ -371,25 +365,21 @@
 				</p>
 
 				<div class="mt-7 flex items-center justify-between border-t border-[#DCE3DD] pt-4">
-
 					<span class="text-[12px] text-[#829087]">
-						Aktueller Messwert
+						{m.dashboard_current_reading()}
 					</span>
 
 					<span class="text-[11px] font-medium text-[#487C69]">
 						°C
 					</span>
-
 				</div>
-
 			</div>
 
 			<!-- LUFTFEUCHTIGKEIT -->
 			<div class="rounded-xl border border-[#CED8D0] bg-[#F1F4F0] p-6">
-
 				<div class="flex items-center justify-between gap-3">
 					<p class="text-[13px] font-medium text-[#68786E]">
-						Luftfeuchtigkeit
+						{m.dashboard_humidity()}
 					</p>
 
 					<span class="h-2 w-2 rounded-full bg-[#648A9B]"></span>
@@ -400,25 +390,21 @@
 				</p>
 
 				<div class="mt-7 flex items-center justify-between border-t border-[#DCE3DD] pt-4">
-
 					<span class="text-[12px] text-[#829087]">
-						Relative Luftfeuchte
+						{m.dashboard_relative_humidity()}
 					</span>
 
 					<span class="text-[11px] font-medium text-[#648A9B]">
 						RH
 					</span>
-
 				</div>
-
 			</div>
 
 			<!-- BODENFEUCHTE -->
 			<div class="rounded-xl border border-[#CED8D0] bg-[#F1F4F0] p-6">
-
 				<div class="flex items-center justify-between gap-3">
 					<p class="text-[13px] font-medium text-[#68786E]">
-						Bodenfeuchte
+						{m.dashboard_soil_moisture()}
 					</p>
 
 					<span class="h-2 w-2 rounded-full bg-[#A17F60]"></span>
@@ -429,25 +415,21 @@
 				</p>
 
 				<div class="mt-7 flex items-center justify-between border-t border-[#DCE3DD] pt-4">
-
 					<span class="text-[12px] text-[#829087]">
-						Substratfeuchtigkeit
+						{m.dashboard_substrate_moisture()}
 					</span>
 
 					<span class="text-[11px] font-medium text-[#A17F60]">
 						%
 					</span>
-
 				</div>
-
 			</div>
 
 			<!-- LICHTSTÄRKE -->
 			<div class="rounded-xl border border-[#CED8D0] bg-[#F1F4F0] p-6">
-
 				<div class="flex items-center justify-between gap-3">
 					<p class="text-[13px] font-medium text-[#68786E]">
-						Lichtstärke
+						{m.dashboard_light_level()}
 					</p>
 
 					<span class="h-2 w-2 rounded-full bg-[#857B9D]"></span>
@@ -458,48 +440,40 @@
 				</p>
 
 				<div class="mt-7 flex items-center justify-between border-t border-[#DCE3DD] pt-4">
-
 					<span class="text-[12px] text-[#829087]">
-						Beleuchtungsstärke
+						{m.dashboard_illuminance()}
 					</span>
 
 					<span class="text-[11px] font-medium text-[#857B9D]">
 						LUX
 					</span>
-
 				</div>
-
 			</div>
-
 		</div>
 
 		<!-- DATENANALYSE -->
 		<div class="mb-4 mt-9 flex flex-wrap items-center justify-between gap-3">
-
 			<h2 class="text-[15px] font-semibold">
-				Datenanalyse
+				{m.dashboard_analysis()}
 			</h2>
 
 			<p class="text-[12px] text-[#87928A]">
 				{formatDate(periodStart)} – {formatDate(data.chartEnd)}
 			</p>
-
 		</div>
 
 		<div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
 
 			<!-- TEMPERATUR-FLÄCHENDIAGRAMM -->
 			<section class="min-w-0 rounded-xl border border-[#CED8D0] bg-[#F1F4F0] p-6 xl:col-span-2">
-
 				<div class="flex flex-wrap items-start justify-between gap-4">
-
 					<div>
 						<h3 class="text-[15px] font-semibold">
-							Temperaturentwicklung
+							{m.dashboard_temperature_trend()}
 						</h3>
 
 						<p class="mt-1 text-[12px] text-[#87928A]">
-							Temperatur im historischen Zeitverlauf
+							{m.dashboard_temperature_history()}
 						</p>
 					</div>
 
@@ -507,21 +481,18 @@
 						href="/verlauf?metric=temperature&period=24h"
 						class="rounded-md border border-[#C7D2C9] px-3 py-2 text-[12px] font-medium text-[#416B50] hover:bg-[#E2E9E3]"
 					>
-						Verlauf öffnen →
+						{m.dashboard_open_history()} →
 					</a>
-
 				</div>
 
 				{#if temperatureChart}
-
 					<div class="mt-7">
-
 						<svg
 							viewBox="0 0 720 240"
 							preserveAspectRatio="xMidYMid meet"
 							class="h-[290px] w-full"
 							role="img"
-							aria-label="Temperatur-Flächendiagramm"
+							aria-label={m.dashboard_temperature_chart()}
 						>
 							<defs>
 								<linearGradient
@@ -545,7 +516,6 @@
 								</linearGradient>
 							</defs>
 
-							<!-- RASTER -->
 							{#each [0, 1, 2, 3, 4] as i}
 								<line
 									x1="55"
@@ -557,13 +527,11 @@
 								/>
 							{/each}
 
-							<!-- FLÄCHE -->
 							<polygon
 								points={temperatureChart.area}
 								fill="url(#temperature-area)"
 							/>
 
-							<!-- TEMPERATURKURVE -->
 							<polyline
 								points={temperatureChart.line}
 								fill="none"
@@ -573,7 +541,6 @@
 								stroke-linejoin="round"
 							/>
 
-							<!-- MESSPUNKTE -->
 							{#each temperatureChart.points as point}
 								<circle
 									cx={point.x}
@@ -587,9 +554,7 @@
 									</title>
 								</circle>
 							{/each}
-
 						</svg>
-
 					</div>
 
 					<div class="mt-3 flex justify-between border-t border-[#DCE3DD] pt-3 text-[11px] text-[#87928A]">
@@ -598,9 +563,8 @@
 					</div>
 
 					<div class="mt-5 flex flex-wrap gap-6 text-[12px]">
-
 						<div>
-							<p class="text-[#87928A]">Minimum</p>
+							<p class="text-[#87928A]">{m.dashboard_minimum()}</p>
 
 							<p class="mt-1 font-semibold">
 								{formatValue(temperatureChart.minimum, '°C')}
@@ -608,7 +572,7 @@
 						</div>
 
 						<div>
-							<p class="text-[#87928A]">Maximum</p>
+							<p class="text-[#87928A]">{m.dashboard_maximum()}</p>
 
 							<p class="mt-1 font-semibold">
 								{formatValue(temperatureChart.maximum, '°C')}
@@ -616,94 +580,78 @@
 						</div>
 
 						<div>
-							<p class="text-[#87928A]">Messpunkte</p>
+							<p class="text-[#87928A]">{m.dashboard_points()}</p>
 
 							<p class="mt-1 font-semibold">
 								{temperatureRows.length}
 							</p>
 						</div>
-
 					</div>
-
 				{:else}
-
 					<div class="mt-7 flex h-[290px] items-center justify-center rounded-lg bg-[#E5EBE6] text-[12px] text-[#87928A]">
-						Keine Temperaturdaten vorhanden
+						{m.dashboard_no_temperature_data()}
 					</div>
-
 				{/if}
-
 			</section>
 
 			<!-- ZWEI KREISDIAGRAMME -->
 			<section class="rounded-xl border border-[#CED8D0] bg-[#F1F4F0] p-6">
-
 				<h3 class="text-[15px] font-semibold">
-					Feuchtigkeitsübersicht
+					{m.dashboard_moisture_overview()}
 				</h3>
 
 				<p class="mt-1 text-[12px] text-[#87928A]">
-					Aktuelle Feuchtigkeitswerte
+					{m.dashboard_moisture_current()}
 				</p>
 
 				<div class="mt-10 grid grid-cols-2 gap-4">
-
 					{@render gauge(
 						data.sensorData.humidity,
-						'Luftfeuchtigkeit',
+						m.dashboard_humidity(),
 						colors.humidity
 					)}
 
 					{@render gauge(
 						data.sensorData.soilMoisture,
-						'Bodenfeuchte',
+						m.dashboard_soil_moisture(),
 						colors.soil
 					)}
-
 				</div>
 
 				<div class="mt-10 border-t border-[#DCE3DD] pt-5">
 					<p class="text-[12px] text-[#87928A]">
-						Die Kreise zeigen die aktuellen Prozentwerte.
+						{m.dashboard_gauge_hint()}
 					</p>
 				</div>
-
 			</section>
-
 		</div>
 
-		<!-- NEU: KOMPAKTE ANALYSEDIAGRAMME -->
+		<!-- ANALYSEDIAGRAMME -->
 		<div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
 
 			<!-- TEMPERATURVERTEILUNG -->
 			<section class="min-w-0 rounded-xl border border-[#CED8D0] bg-[#F1F4F0] p-6">
-
 				<div class="flex flex-wrap items-start justify-between gap-4">
-
 					<div>
 						<h3 class="text-[15px] font-semibold">
-							Temperaturverteilung
+							{m.dashboard_temperature_distribution()}
 						</h3>
 
 						<p class="mt-1 text-[12px] text-[#87928A]">
-							Häufigkeit der gemessenen Temperaturen
+							{m.dashboard_temperature_frequency()}
 						</p>
 					</div>
 
 					<span class="rounded-md bg-[#E4EBE6] px-3 py-1.5 text-[11px] font-medium text-[#607267]">
-						{temperatureRows.length} Messungen
+						{m.dashboard_reading_count({ count: temperatureRows.length })}
 					</span>
-
 				</div>
 
 				{#if histogram.length > 0}
-
-					<!-- STATISTIK -->
 					<div class="mt-6 grid grid-cols-3 gap-4 border-b border-[#DCE3DD] pb-5">
-
 						<div>
 							<p class="text-[11px] text-[#87928A]">
-								Durchschnitt
+								{m.dashboard_average()}
 							</p>
 
 							<p class="mt-1 text-[20px] font-semibold tabular-nums">
@@ -713,7 +661,7 @@
 
 						<div>
 							<p class="text-[11px] text-[#87928A]">
-								Minimum
+								{m.dashboard_minimum()}
 							</p>
 
 							<p class="mt-1 text-[20px] font-semibold tabular-nums">
@@ -723,28 +671,23 @@
 
 						<div>
 							<p class="text-[11px] text-[#87928A]">
-								Maximum
+								{m.dashboard_maximum()}
 							</p>
 
 							<p class="mt-1 text-[20px] font-semibold tabular-nums">
 								{formatValue(temperatureChart.maximum, '°C')}
 							</p>
 						</div>
-
 					</div>
 
-					<!-- HISTOGRAMM -->
 					<div class="mt-6">
-
 						<svg
 							viewBox="0 0 600 205"
 							preserveAspectRatio="xMidYMid meet"
 							class="h-[210px] w-full"
 							role="img"
-							aria-label="Histogramm der Temperaturverteilung"
+							aria-label={m.dashboard_temperature_histogram()}
 						>
-
-							<!-- GITTERLINIEN -->
 							{#each [0, 1, 2, 3, 4] as step}
 								{@const y = 165 - step * 35}
 
@@ -764,11 +707,10 @@
 									font-size="11"
 									fill="#87928A"
 								>
-									{Number(((step / 4) * histogramMax).toFixed(1)).toLocaleString('de-DE')}
+									{Number(((step / 4) * histogramMax).toFixed(1)).toLocaleString(currentLocale())}
 								</text>
 							{/each}
 
-							<!-- SÄULEN -->
 							{#each histogram as bin, index}
 								{@const barHeight = (bin.count / histogramMax) * 140}
 								{@const x = 49 + index * 106}
@@ -784,7 +726,7 @@
 									<title>
 										{formatValue(bin.start, '°C')} –
 										{formatValue(bin.end, '°C')}:
-										{bin.count} Messungen
+										{m.dashboard_reading_count({ count: bin.count })}
 									</title>
 								</rect>
 
@@ -801,72 +743,55 @@
 									</text>
 								{/if}
 							{/each}
-
 						</svg>
 
 						<div class="grid grid-cols-5 gap-1 border-t border-[#CCD8CF] pt-3 text-center">
-
 							{#each histogram as bin}
 								<p class="text-[10px] text-[#87928A]">
 									{formatValue(bin.start)}–
 									{formatValue(bin.end)}
 								</p>
 							{/each}
-
 						</div>
-
 					</div>
 
 					<div class="mt-5 flex items-center justify-between border-t border-[#DCE3DD] pt-4 text-[11px] text-[#87928A]">
-						<span>Temperaturbereiche (°C)</span>
-						<span>Häufigkeit der Messungen</span>
+						<span>{m.dashboard_temperature_ranges()}</span>
+						<span>{m.dashboard_measurement_frequency()}</span>
 					</div>
-
 				{:else}
-
 					<div class="mt-7 flex h-[250px] items-center justify-center rounded-lg bg-[#E5EBE6] text-[12px] text-[#87928A]">
-						Keine Temperaturmessungen vorhanden
+						{m.dashboard_no_temperature_readings()}
 					</div>
-
 				{/if}
-
 			</section>
 
-			<!-- LICHTINTENSITÄT: HORIZONTALES BALKENDIAGRAMM -->
+			<!-- LICHTINTENSITÄT -->
 			<section class="min-w-0 rounded-xl border border-[#CED8D0] bg-[#F1F4F0] p-6">
-
 				<div class="flex flex-wrap items-start justify-between gap-4">
-
 					<div>
 						<h3 class="text-[15px] font-semibold">
-							Lichtintensität
+							{m.dashboard_light_intensity()}
 						</h3>
 
 						<p class="mt-1 text-[12px] text-[#87928A]">
-							Vergleich der letzten Lichtmessungen
+							{m.dashboard_light_comparison()}
 						</p>
 					</div>
 
 					<span class="rounded-md bg-[#E4EBE6] px-3 py-1.5 text-[11px] font-medium text-[#607267]">
 						lux
 					</span>
-
 				</div>
 
 				{#if recentLightRows.length > 0}
-
 					<div class="mt-7 space-y-5">
-
 						{#each recentLightRows as row}
-
 							<div class="grid grid-cols-[80px_minmax(0,1fr)_65px] items-center gap-3 sm:grid-cols-[95px_minmax(0,1fr)_75px]">
-
-								<!-- ZEITPUNKT -->
 								<span class="text-[11px] tabular-nums text-[#7F8E83]">
 									{formatShortTime(row.time)}
 								</span>
 
-								<!-- BALKEN -->
 								<div
 									class="h-5 overflow-hidden rounded-sm bg-[#E2E8E3]"
 									title={`${formatValue(row.value, 'lux')} · ${formatDateTime(row.time)}`}
@@ -877,20 +802,14 @@
 									></div>
 								</div>
 
-								<!-- WERT -->
 								<span class="text-right text-[12px] font-semibold tabular-nums text-[#46534A]">
 									{formatValue(row.value)}
 								</span>
-
 							</div>
-
 						{/each}
-
 					</div>
 
-					<!-- SKALA -->
 					<div class="mt-6 grid grid-cols-[80px_minmax(0,1fr)_65px] gap-3 sm:grid-cols-[95px_minmax(0,1fr)_75px]">
-
 						<div></div>
 
 						<div class="flex justify-between border-t border-[#C8D3CB] pt-3 text-[10px] text-[#87928A]">
@@ -900,15 +819,12 @@
 						</div>
 
 						<div></div>
-
 					</div>
 
-					<!-- ZUSAMMENFASSUNG -->
 					<div class="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-[#DCE3DD] pt-5">
-
 						<div>
 							<p class="text-[11px] text-[#87928A]">
-								Letzter Messwert
+								{m.dashboard_latest_reading()}
 							</p>
 
 							<p class="mt-1 text-[22px] font-semibold tabular-nums">
@@ -918,59 +834,48 @@
 
 						<div class="text-right">
 							<p class="text-[11px] text-[#87928A]">
-								Durchschnitt
+								{m.dashboard_average()}
 							</p>
 
 							<p class="mt-1 text-[22px] font-semibold tabular-nums">
 								{formatValue(average(recentLightRows), 'lux')}
 							</p>
 						</div>
-
 					</div>
-
 				{:else}
-
 					<div class="mt-7 flex h-[250px] items-center justify-center rounded-lg bg-[#E5EBE6] text-[12px] text-[#87928A]">
-						Keine Lichtmessungen vorhanden
+						{m.dashboard_no_light_readings()}
 					</div>
-
 				{/if}
-
 			</section>
-
 		</div>
 
 		<!-- SYSTEMINFORMATIONEN -->
 		<div class="mb-4 mt-9">
-
 			<h2 class="text-[15px] font-semibold">
-				Systeminformationen
+				{m.dashboard_system_info()}
 			</h2>
-
 		</div>
 
 		<div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
 
-			<!-- KOMPONENTEN-DOUGHNUT -->
+			<!-- KOMPONENTEN -->
 			<section class="rounded-xl border border-[#CED8D0] bg-[#F1F4F0] p-6">
-
 				<h3 class="text-[15px] font-semibold">
-					Komponentenstatus
+					{m.dashboard_component_status()}
 				</h3>
 
 				<p class="mt-1 text-[12px] text-[#87928A]">
-					Verteilung aktiver und inaktiver Komponenten
+					{m.dashboard_component_distribution()}
 				</p>
 
 				<div class="mt-7 flex flex-col items-center gap-7 sm:flex-row">
-
 					<div class="relative h-[180px] w-[180px] shrink-0">
-
 						<svg
 							viewBox="0 0 120 120"
 							class="h-full w-full -rotate-90"
 							role="img"
-							aria-label={`${activeCount} aktive und ${inactiveCount} inaktive Komponenten`}
+							aria-label={m.dashboard_component_counts({ active: activeCount, inactive: inactiveCount })}
 						>
 							<circle
 								cx="60"
@@ -993,188 +898,153 @@
 						</svg>
 
 						<div class="absolute inset-0 flex flex-col items-center justify-center">
-
 							<span class="text-[30px] font-semibold tabular-nums">
 								{activeCount}/3
 							</span>
 
 							<span class="text-[11px] text-[#87928A]">
-								Aktiv
+								{m.dashboard_active()}
 							</span>
-
 						</div>
-
 					</div>
 
 					<div class="w-full space-y-4">
-
 						<div class="flex items-center justify-between gap-4">
-
 							<span class="flex items-center gap-2 text-[13px]">
 								<span class="h-2.5 w-2.5 rounded-full bg-[#487C69]"></span>
-								Aktiv
+								{m.dashboard_active()}
 							</span>
 
 							<span class="text-[13px] font-semibold">
 								{activeCount}
 							</span>
-
 						</div>
 
 						<div class="flex items-center justify-between gap-4">
-
 							<span class="flex items-center gap-2 text-[13px]">
 								<span class="h-2.5 w-2.5 rounded-full bg-[#C9D3CC]"></span>
-								Inaktiv
+								{m.dashboard_inactive()}
 							</span>
 
 							<span class="text-[13px] font-semibold">
 								{inactiveCount}
 							</span>
-
 						</div>
 
 						<div class="border-t border-[#DCE3DD] pt-4 text-[12px] text-[#68796D]">
-
-							Betriebsmodus:
+							{m.dashboard_mode()}:
 
 							<span class="font-semibold">
-								{data.statusData.mode ?? 'Unbekannt'}
+								{data.statusData.mode ?? m.dashboard_unknown()}
 							</span>
-
 						</div>
-
 					</div>
-
 				</div>
 
 				<div class="mt-7 grid grid-cols-3 gap-3 border-t border-[#DCE3DD] pt-5 text-center">
-
 					<div>
 						<p class="text-[12px] font-medium">
-							Belüftung
+							{m.dashboard_ventilation()}
 						</p>
 
 						<p class="mt-1 text-[11px] text-[#87928A]">
-							{fanActive ? 'Aktiv' : 'Inaktiv'}
+							{fanActive ? m.dashboard_active() : m.dashboard_inactive()}
 						</p>
 					</div>
 
 					<div>
 						<p class="text-[12px] font-medium">
-							Bewässerung
+							{m.dashboard_irrigation()}
 						</p>
 
 						<p class="mt-1 text-[11px] text-[#87928A]">
-							{pumpActive ? 'Aktiv' : 'Inaktiv'}
+							{pumpActive ? m.dashboard_active() : m.dashboard_inactive()}
 						</p>
 					</div>
 
 					<div>
 						<p class="text-[12px] font-medium">
-							Beleuchtung
+							{m.dashboard_lighting()}
 						</p>
 
 						<p class="mt-1 text-[11px] text-[#87928A]">
-							{ledActive ? 'Aktiv' : 'Inaktiv'}
+							{ledActive ? m.dashboard_active() : m.dashboard_inactive()}
 						</p>
 					</div>
-
 				</div>
-
 			</section>
 
 			<!-- WEITERE SENSORDATEN -->
 			<section class="rounded-xl border border-[#CED8D0] bg-[#F1F4F0] p-6">
-
 				<h3 class="text-[15px] font-semibold">
-					Weitere Sensordaten
+					{m.dashboard_more_sensors()}
 				</h3>
 
 				<p class="mt-1 text-[12px] text-[#87928A]">
-					Zusätzliche aktuelle Messwerte
+					{m.dashboard_additional_readings()}
 				</p>
 
 				<div class="mt-7 space-y-6">
-
-					<!-- BODENTEMPERATUR -->
 					<div class="flex items-center justify-between gap-4 border-b border-[#DCE3DD] pb-5">
-
 						<div>
 							<p class="text-[13px] font-medium">
-								Bodentemperatur
+								{m.dashboard_soil_temperature()}
 							</p>
 
 							<p class="mt-1 text-[11px] text-[#87928A]">
-								Temperatur im Substrat
+								{m.dashboard_substrate_temperature()}
 							</p>
 						</div>
 
 						<p class="text-right text-[24px] font-semibold tabular-nums">
 							{formatValue(data.sensorData.soilTemperature, '°C')}
 						</p>
-
 					</div>
 
-					<!-- DLI -->
 					<div class="flex items-center justify-between gap-4 border-b border-[#DCE3DD] pb-5">
-
 						<div>
 							<p class="text-[13px] font-medium">
-								Daily Light Integral
+								{m.dashboard_dli()}
 							</p>
 
 							<p class="mt-1 text-[11px] text-[#87928A]">
-								Lichtmenge pro Tag
+								{m.dashboard_daily_light()}
 							</p>
 						</div>
 
 						<div class="text-right">
-
 							<p class="text-[24px] font-semibold tabular-nums">
 								{formatValue(data.sensorData.dli)}
 							</p>
 
 							<p class="text-[10px] text-[#87928A]">
-								mol/m²/Tag
+								{m.dashboard_dli_unit()}
 							</p>
-
 						</div>
-
 					</div>
 
-					<!-- LETZTE MESSUNG -->
 					<div>
 						<p class="text-[12px] text-[#87928A]">
-							Letzte Messung
+							{m.dashboard_last_measurement()}
 						</p>
 
 						<p class="mt-2 text-[14px] font-semibold">
 							{formatDateTime(data.sensorData.measuredAt)}
 						</p>
 					</div>
-
 				</div>
-
 			</section>
-
 		</div>
 
 		<!-- SYSTEMSTATUS -->
 		{#if !data.latestAlert}
-
 			<div class="mt-6 flex items-center gap-2">
-
 				<span class="h-2 w-2 rounded-full bg-[#487C69]"></span>
 
 				<p class="text-[12px] text-[#87928A]">
-					Keine aktiven Warnungen
+					{m.dashboard_no_alerts()}
 				</p>
-
 			</div>
-
 		{/if}
-
 	</main>
-
 </div>
