@@ -124,8 +124,8 @@
 
 	let statistics = $derived({
 		current: data.current,
-		min: data.min,
-		max: data.max,
+		min: data.minimum,
+		max: data.maximum,
 		average: data.average
 	});
 
