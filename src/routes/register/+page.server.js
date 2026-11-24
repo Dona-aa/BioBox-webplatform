@@ -1,10 +1,20 @@
-import { fail } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 import bcrypt from 'bcryptjs';
 import { db } from '$lib/server/db.js';
 import * as m from '$lib/paraglide/messages.js';
 
+export async function load({ locals }) {
+	if (locals.user) {
+		throw redirect(303, '/dashboard');
+	}
+}
+
 export const actions = {
-	default: async ({ request }) => {
+	default: async ({ request, locals }) => {
+		if (locals.user) {
+			throw redirect(303, '/dashboard');
+		}
+
 		const formData = await request.formData();
 
 		const username = String(formData.get('username') ?? '').trim();

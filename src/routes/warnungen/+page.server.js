@@ -1,5 +1,4 @@
 import { fail, redirect } from '@sveltejs/kit';
-import { createHash } from 'node:crypto';
 import { db } from '$lib/server/db.js';
 import { getLocale } from '$lib/paraglide/runtime.js';
 
@@ -34,34 +33,15 @@ export async function load() {
 }
 
 export const actions = {
-	acknowledge: async ({ request, cookies }) => {
-		const sessionToken = cookies.get('session');
-
-		if (!sessionToken) {
-			throw redirect(303, '/login');
-		}
-
-		const tokenHash = createHash('sha256')
-			.update(sessionToken)
-			.digest('hex');
-
-		const [sessions] = await db.execute(
-			`SELECT user_id
-			 FROM sessions
-			 WHERE token_hash = ?
-			 AND expires_at > NOW()
-			 LIMIT 1`,
-			[tokenHash]
-		);
-
-		if (sessions.length === 0) {
+	acknowledge: async ({ request, locals }) => {
+		if (!locals.user) {
 			throw redirect(303, '/login');
 		}
 
 		const formData = await request.formData();
-		const alertId = formData.get('alertId');
+		const alertId = Number(formData.get('alertId'));
 
-		if (!alertId) {
+		if (!Number.isInteger(alertId) || alertId <= 0) {
 			return fail(400);
 		}
 
@@ -71,7 +51,7 @@ export const actions = {
 			     acknowledged_at = NOW()
 			 WHERE id = ?
 			 AND is_resolved = FALSE`,
-			[sessions[0].user_id, alertId]
+			[locals.user.id, alertId]
 		);
 
 		return {
