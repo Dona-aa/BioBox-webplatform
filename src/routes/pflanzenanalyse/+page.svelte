@@ -2,10 +2,18 @@
 	import { onMount } from 'svelte';
 	import { invalidateAll } from '$app/navigation';
 	import AppHeader from '$lib/components/AppHeader.svelte';
+	import * as m from '$lib/paraglide/messages.js';
+	import { getLocale } from '$lib/paraglide/runtime.js';
 
 	let { data } = $props();
 
 	let analysis = $derived(data.analysis);
+
+	function currentLocale() {
+		if (getLocale() === 'en') return 'en-US';
+		if (getLocale() === 'sq') return 'sq-AL';
+		return 'de-DE';
+	}
 
 	function showValue(value, unit = '') {
 		if (
@@ -13,10 +21,10 @@
 			value === undefined ||
 			!Number.isFinite(Number(value))
 		) {
-			return 'Keine Daten';
+			return m.plant_no_data();
 		}
 
-		const number = Number(value).toLocaleString('de-DE', {
+		const number = Number(value).toLocaleString(currentLocale(), {
 			minimumFractionDigits: 1,
 			maximumFractionDigits: 1
 		});
@@ -25,13 +33,13 @@
 	}
 
 	function formatDate(value) {
-		if (!value) return 'Keine Daten';
+		if (!value) return m.plant_no_data();
 
 		const date = new Date(value);
 
-		if (!Number.isFinite(date.getTime())) return 'Keine Daten';
+		if (!Number.isFinite(date.getTime())) return m.plant_no_data();
 
-		return date.toLocaleString('de-DE', {
+		return date.toLocaleString(currentLocale(), {
 			day: '2-digit',
 			month: '2-digit',
 			year: 'numeric',
@@ -77,7 +85,7 @@
 </script>
 
 <!-- CIRCULAR INDICATOR -->
-{#snippet circleIndicator(value, label, color)}
+{#snippet circleIndicator(value, label, description, color)}
 	<div class="flex items-center gap-4">
 
 		<div class="relative h-[96px] w-[96px] shrink-0">
@@ -126,9 +134,7 @@
 			</p>
 
 			<p class="mt-1 text-[11px] leading-5 text-[#87928A]">
-				{label === 'Pflanzenabdeckung'
-					? 'Anteil der erfassten Pflanzenfläche'
-					: 'Anteil erkannter gelblicher Bereiche'}
+				{description}
 			</p>
 
 		</div>
@@ -147,15 +153,15 @@
 
 			<div>
 				<p class="text-[12px] text-[#77847B]">
-					BioBox / Computer Vision
+					{m.plant_breadcrumb()}
 				</p>
 
 				<h1 class="mt-2 text-[27px] font-semibold tracking-tight">
-					Pflanzenanalyse
+					{m.plant_title()}
 				</h1>
 
 				<p class="mt-1 text-[13px] text-[#77847B]">
-					Bildbasierte Analyse von Wachstum und Pflanzengesundheit
+					{m.plant_intro()}
 				</p>
 			</div>
 
@@ -165,11 +171,11 @@
 
 				<div>
 					<p class="text-[12px] font-medium text-[#405B49]">
-						Automatische Aktualisierung
+						{m.plant_auto_refresh()}
 					</p>
 
 					<p class="mt-0.5 text-[11px] text-[#829087]">
-						Alle 5 Sekunden
+						{m.plant_refresh_interval()}
 					</p>
 				</div>
 
@@ -187,16 +193,16 @@
 
 					<div>
 						<h2 class="text-[15px] font-semibold">
-							Aktuelle Pflanzenaufnahme
+							{m.plant_current_image()}
 						</h2>
 
 						<p class="mt-1 text-[12px] text-[#87928A]">
-							Zuletzt erfasstes Kamerabild
+							{m.plant_latest_image()}
 						</p>
 					</div>
 
 					<span class="rounded-md bg-[#E2EAE4] px-3 py-2 text-[11px] font-medium text-[#5D7664]">
-						Kameraaufnahme
+						{m.plant_camera_image()}
 					</span>
 
 				</div>
@@ -209,7 +215,7 @@
 
 							<img
 								src={analysis.file_path}
-								alt="Aktuelle Aufnahme der BioBox-Pflanze"
+								alt={m.plant_image_alt()}
 								class="max-h-[520px] w-full object-contain"
 							/>
 
@@ -235,12 +241,11 @@
 								</div>
 
 								<p class="mt-5 text-[14px] font-semibold text-[#526C59]">
-									Noch keine Aufnahme verfügbar
+									{m.plant_no_image()}
 								</p>
 
 								<p class="mx-auto mt-2 max-w-xs text-[12px] leading-6 text-[#829087]">
-									Sobald ein Pflanzenbild gespeichert wurde,
-									wird es hier automatisch angezeigt.
+									{m.plant_no_image_hint()}
 								</p>
 
 							</div>
@@ -253,7 +258,7 @@
 
 						<div>
 							<p class="text-[11px] text-[#87928A]">
-								Aufnahmezeitpunkt
+								{m.plant_capture_time()}
 							</p>
 
 							<p class="mt-1 text-[13px] font-semibold">
@@ -264,7 +269,7 @@
 						{#if analysis?.file_name}
 							<div class="min-w-0 text-left sm:text-right">
 								<p class="text-[11px] text-[#87928A]">
-									Bilddatei
+									{m.plant_image_file()}
 								</p>
 
 								<p class="mt-1 max-w-[250px] break-all text-[12px] font-medium text-[#68796D]">
@@ -286,11 +291,11 @@
 
 					<div>
 						<h2 class="text-[15px] font-semibold">
-							Pflanzengesundheit
+							{m.plant_health()}
 						</h2>
 
 						<p class="mt-1 text-[12px] text-[#87928A]">
-							Ergebnis der letzten Bildanalyse
+							{m.plant_health_result()}
 						</p>
 					</div>
 
@@ -310,7 +315,9 @@
 							viewBox="0 0 120 120"
 							class="h-full w-full -rotate-90"
 							role="img"
-							aria-label={`Gesundheitsscore: ${showValue(analysis?.health_score)} von 100`}
+							aria-label={m.plant_health_score({
+								score: showValue(analysis?.health_score)
+							})}
 						>
 							<circle
 								cx="60"
@@ -342,7 +349,7 @@
 							</p>
 
 							<p class="mt-2 text-[12px] text-[#87928A]">
-								von 100 Punkten
+								{m.plant_out_of_100()}
 							</p>
 
 						</div>
@@ -358,7 +365,7 @@
 						</p>
 					{:else}
 						<p class="mt-5 text-[12px] text-[#87928A]">
-							Keine Gesundheitsbewertung vorhanden
+							{m.plant_no_health_rating()}
 						</p>
 					{/if}
 
@@ -371,13 +378,13 @@
 
 						<div>
 							<p class="text-[11px] text-[#87928A]">
-								Gesundheitstrend · 24 Stunden
+								{m.plant_health_trend()}
 							</p>
 
 							<p class="mt-2 text-[23px] font-semibold tabular-nums">
 								{hasValue(analysis?.health_trend_24h)
-									? `${Number(analysis.health_trend_24h) > 0 ? '+' : ''}${showValue(analysis.health_trend_24h)} Punkte`
-									: 'Keine Daten'}
+									? `${Number(analysis.health_trend_24h) > 0 ? '+' : ''}${showValue(analysis.health_trend_24h)} ${m.plant_points()}`
+									: m.plant_no_data()}
 							</p>
 						</div>
 
@@ -391,10 +398,10 @@
 										: 'rounded-md bg-[#E6EAE6] px-3 py-2 text-[12px] font-semibold text-[#78867C]'}
 							>
 								{Number(analysis.health_trend_24h) > 0
-									? '↗ Verbesserung'
+									? `↗ ${m.plant_improvement()}`
 									: Number(analysis.health_trend_24h) < 0
-										? '↘ Rückgang'
-										: '→ Unverändert'}
+										? `↘ ${m.plant_decline()}`
+										: `→ ${m.plant_unchanged()}`}
 							</span>
 
 						{/if}
@@ -412,16 +419,16 @@
 
 			<div>
 				<h2 class="text-[16px] font-semibold">
-					Bildanalyse
+					{m.plant_image_analysis()}
 				</h2>
 
 				<p class="mt-1 text-[12px] text-[#829087]">
-					Aus der letzten Aufnahme berechnete Pflanzenmerkmale
+					{m.plant_analysis_description()}
 				</p>
 			</div>
 
 			<span class="text-[12px] text-[#87928A]">
-				Computer Vision
+				{m.plant_computer_vision()}
 			</span>
 
 		</div>
@@ -434,7 +441,7 @@
 				<div class="flex items-center justify-between gap-3">
 
 					<h3 class="text-[13px] font-semibold">
-						Pflanzenfläche
+						{m.plant_leaf_area()}
 					</h3>
 
 					<span class="h-2 w-2 rounded-full bg-[#487C69]"></span>
@@ -446,7 +453,7 @@
 				</p>
 
 				<p class="mt-5 border-t border-[#DCE3DD] pt-4 text-[12px] leading-5 text-[#829087]">
-					Ermittelte Pflanzenfläche aus der Bildauswertung.
+					{m.plant_leaf_area_description()}
 				</p>
 
 			</section>
@@ -457,7 +464,7 @@
 				<div class="flex items-center justify-between gap-3">
 
 					<h3 class="text-[13px] font-semibold">
-						Grünheitsindex
+						{m.plant_greenness()}
 					</h3>
 
 					<span class="h-2 w-2 rounded-full bg-[#648A9B]"></span>
@@ -469,7 +476,7 @@
 				</p>
 
 				<p class="mt-5 border-t border-[#DCE3DD] pt-4 text-[12px] leading-5 text-[#829087]">
-					Farbkennwert zur Bewertung der Blattgrün-Anteile.
+					{m.plant_greenness_description()}
 				</p>
 
 			</section>
@@ -480,7 +487,7 @@
 				<div class="flex items-center justify-between gap-3">
 
 					<h3 class="text-[13px] font-semibold">
-						Letzte Analyse
+						{m.plant_last_analysis()}
 					</h3>
 
 					<span class="h-2 w-2 rounded-full bg-[#A18B60]"></span>
@@ -492,7 +499,7 @@
 				</p>
 
 				<p class="mt-5 border-t border-[#DCE3DD] pt-4 text-[12px] leading-5 text-[#829087]">
-					Zeitpunkt der letzten Gesundheitsbewertung.
+					{m.plant_last_analysis_description()}
 				</p>
 
 			</section>
@@ -506,7 +513,8 @@
 
 				{@render circleIndicator(
 					analysis?.canopy_cover_pct,
-					'Pflanzenabdeckung',
+					m.plant_coverage(),
+					m.plant_coverage_description(),
 					'#487C69'
 				)}
 
@@ -516,7 +524,8 @@
 
 				{@render circleIndicator(
 					analysis?.yellow_fraction_pct,
-					'Vergilbung',
+					m.plant_yellowing(),
+					m.plant_yellowing_description(),
 					'#B18B52'
 				)}
 
@@ -550,7 +559,7 @@
 
 					<div>
 						<h2 class="text-[14px] font-semibold text-[#775D39]">
-							Hinweise zur Pflanzengesundheit
+							{m.plant_health_warnings()}
 						</h2>
 
 						<p class="mt-2 whitespace-pre-line text-[13px] leading-6 text-[#856D4A]">
