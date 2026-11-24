@@ -5,7 +5,13 @@ import { error, redirect } from '@sveltejs/kit';
 import { createHash } from 'node:crypto';
 import { db } from '$lib/server/db.js';
 
+function matchesRoute(path, route) {
+	return path === route || path.startsWith(route + '/');
+}
+
 async function originalHandle({ event, resolve }) {
+	const path = event.url.pathname;
+
 	const protectedPages = [
 		'/dashboard',
 		'/live-daten',
@@ -16,10 +22,13 @@ async function originalHandle({ event, resolve }) {
 		'/benutzer'
 	];
 
-	const protectedApi = ['/api/v1/actuators/command'];
+	const protectedApi = [
+		'/api/v1/actuators/command'
+	];
+
 	const needsLogin =
-		protectedPages.some((page) => event.url.pathname.startsWith(page)) ||
-		protectedApi.some((api) => event.url.pathname.startsWith(api));
+		protectedPages.some((page) => matchesRoute(path, page)) ||
+		protectedApi.some((api) => matchesRoute(path, api));
 
 	event.locals.user = null;
 
@@ -30,14 +39,16 @@ async function originalHandle({ event, resolve }) {
 	const token = event.cookies.get('session');
 
 	if (!token) {
-		if (event.url.pathname.startsWith('/api/')) {
+		if (path.startsWith('/api/')) {
 			throw error(401, 'Nicht angemeldet.');
 		}
 
 		throw redirect(303, '/login');
 	}
 
-	const tokenHash = createHash('sha256').update(token).digest('hex');
+	const tokenHash = createHash('sha256')
+		.update(token)
+		.digest('hex');
 
 	const [sessions] = await db.execute(
 		`SELECT
@@ -58,7 +69,7 @@ async function originalHandle({ event, resolve }) {
 			path: '/'
 		});
 
-		if (event.url.pathname.startsWith('/api/')) {
+		if (path.startsWith('/api/')) {
 			throw error(401, 'Sitzung ist ungültig.');
 		}
 
@@ -72,13 +83,18 @@ async function originalHandle({ event, resolve }) {
 		role: sessions[0].role
 	};
 
-	const adminOnlyRoute =
-		event.url.pathname.startsWith('/steuerung') ||
-		event.url.pathname.startsWith('/benutzer') ||
-		event.url.pathname.startsWith('/api/v1/actuators/command');
+	const adminOnlyRoutes = [
+		'/steuerung',
+		'/benutzer',
+		'/api/v1/actuators/command'
+	];
+
+	const adminOnlyRoute = adminOnlyRoutes.some(
+		(route) => matchesRoute(path, route)
+	);
 
 	if (adminOnlyRoute && event.locals.user.role !== 'admin') {
-		if (event.url.pathname.startsWith('/api/')) {
+		if (path.startsWith('/api/')) {
 			throw error(403, 'Keine Berechtigung.');
 		}
 
@@ -88,7 +104,7 @@ async function originalHandle({ event, resolve }) {
 	return resolve(event);
 }
 
-/** @type {import('@sveltejs/kit').Handle} */ const handleParaglide = ({ event, resolve }) =>
+const handleParaglide = ({ event, resolve }) =>
 	paraglideMiddleware(event.request, ({ request, locale }) => {
 		return resolve(
 			{ ...event, request },
@@ -101,4 +117,4 @@ async function originalHandle({ event, resolve }) {
 		);
 	});
 
-export const handle = sequence(originalHandle, handleParaglide);
+export const handle = sequence(handleParaglide, originalHandle);
