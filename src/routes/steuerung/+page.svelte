@@ -1,6 +1,8 @@
 <script>
 	import { onMount } from 'svelte';
 	import AppHeader from '$lib/components/AppHeader.svelte';
+	import * as m from '$lib/paraglide/messages.js';
+	import { getLocale } from '$lib/paraglide/runtime.js';
 
 	let { data } = $props();
 
@@ -29,26 +31,32 @@
 	const components = [
 		{
 			id: 'water',
-			name: 'Bewässerung',
-			description: 'Steuert die Wasserzufuhr zur Pflanze.',
+			name: m.control_water(),
+			description: m.control_water_description(),
 			color: '#648A9B',
 			number: '01'
 		},
 		{
 			id: 'light',
-			name: 'Beleuchtung',
-			description: 'Steuert die künstliche Pflanzenbeleuchtung.',
+			name: m.control_light(),
+			description: m.control_light_description(),
 			color: '#A18B60',
 			number: '02'
 		},
 		{
 			id: 'fan',
-			name: 'Lüftung',
-			description: 'Steuert die Luftzirkulation innerhalb der BioBox.',
+			name: m.control_fan(),
+			description: m.control_fan_description(),
 			color: '#487C69',
 			number: '03'
 		}
 	];
+
+	function currentLocale() {
+		if (getLocale() === 'en') return 'en-US';
+		if (getLocale() === 'sq') return 'sq-AL';
+		return 'de-DE';
+	}
 
 	function componentIsActive(id) {
 		if (id === 'water') return waterActive;
@@ -75,9 +83,9 @@
 	}
 
 	function formatTime(value) {
-		if (!value) return 'Noch nicht aktualisiert';
+		if (!value) return m.control_not_updated();
 
-		return new Date(value).toLocaleTimeString('de-DE', {
+		return new Date(value).toLocaleTimeString(currentLocale(), {
 			hour: '2-digit',
 			minute: '2-digit',
 			second: '2-digit'
@@ -119,8 +127,7 @@
 
 		// Komponenten dürfen nur manuell geschaltet werden
 		if (component !== 'mode' && !isManual) {
-			commandMessage =
-				'Wechsle zuerst in den manuellen Modus.';
+			commandMessage = m.control_switch_manual_first();
 			commandError = true;
 			return;
 		}
@@ -145,14 +152,11 @@
 				throw new Error(`HTTP ${response.status}`);
 			}
 
-			commandMessage =
-				'Befehl erfolgreich an das System gesendet.';
-
+			commandMessage = m.control_command_success();
 			commandError = false;
-		} catch (error) {
-			commandMessage =
-				'Der Befehl konnte nicht gesendet werden.';
 
+		} catch (error) {
+			commandMessage = m.control_command_failed();
 			commandError = true;
 
 			console.error('Fehler beim Senden des Befehls:', error);
@@ -182,15 +186,15 @@
 
 			<div>
 				<p class="text-[12px] text-[#77847B]">
-					BioBox / Systemsteuerung
+					{m.control_breadcrumb()}
 				</p>
 
 				<h1 class="mt-2 text-[27px] font-semibold tracking-tight">
-					Steuerung
+					{m.control_title()}
 				</h1>
 
 				<p class="mt-1 text-[13px] text-[#77847B]">
-					Betriebsmodus und Hardwarekomponenten verwalten
+					{m.control_intro()}
 				</p>
 			</div>
 
@@ -205,12 +209,12 @@
 				<div>
 					<p class="text-[12px] font-medium text-[#405B49]">
 						{connectionError
-							? 'Status nicht erreichbar'
-							: 'Statusabfrage aktiv'}
+							? m.control_status_unavailable()
+							: m.control_status_active()}
 					</p>
 
 					<p class="mt-0.5 text-[11px] text-[#829087]">
-						Alle 5 Sekunden
+						{m.control_refresh_interval()}
 					</p>
 				</div>
 
@@ -237,11 +241,11 @@
 
 				<div>
 					<h2 class="text-[16px] font-semibold">
-						Betriebsmodus
+						{m.control_mode()}
 					</h2>
 
 					<p class="mt-1.5 text-[12px] text-[#829087]">
-						Lege fest, wie die BioBox ihre Komponenten steuert.
+						{m.control_mode_description()}
 					</p>
 				</div>
 
@@ -253,10 +257,10 @@
 
 					<span class="text-[11px] font-semibold text-[#4B6653]">
 						{isAuto
-							? 'Automatikmodus'
+							? m.control_auto_mode()
 							: isManual
-								? 'Manueller Modus'
-								: 'Modus unbekannt'}
+								? m.control_manual_mode()
+								: m.control_unknown_mode()}
 					</span>
 
 				</div>
@@ -275,12 +279,11 @@
 
 						<div>
 							<p class="text-[15px] font-semibold">
-								Automatisch
+								{m.control_automatic()}
 							</p>
 
 							<p class="mt-2 max-w-sm text-[12px] leading-6 text-[#75847A]">
-								Die BioBox steuert Bewässerung, Beleuchtung
-								und Lüftung selbstständig.
+								{m.control_automatic_description()}
 							</p>
 						</div>
 
@@ -302,7 +305,9 @@
 							? 'mt-7 w-full cursor-default rounded-md bg-[#D6E4D9] px-4 py-3 text-[12px] font-semibold text-[#487C69]'
 							: 'mt-7 w-full rounded-md bg-[#1C2B23] px-4 py-3 text-[12px] font-semibold text-white transition-colors hover:bg-[#304437] disabled:cursor-not-allowed disabled:opacity-50'}
 					>
-						{isAuto ? 'Aktueller Modus' : 'Automatik aktivieren'}
+						{isAuto
+							? m.control_current_mode()
+							: m.control_activate_auto()}
 					</button>
 
 				</div>
@@ -317,12 +322,11 @@
 
 						<div>
 							<p class="text-[15px] font-semibold">
-								Manuell
+								{m.control_manual()}
 							</p>
 
 							<p class="mt-2 max-w-sm text-[12px] leading-6 text-[#75847A]">
-								Du steuerst die Komponenten selbst über die
-								Schaltflächen auf dieser Seite.
+								{m.control_manual_description()}
 							</p>
 						</div>
 
@@ -344,7 +348,9 @@
 							? 'mt-7 w-full cursor-default rounded-md bg-[#D6E4D9] px-4 py-3 text-[12px] font-semibold text-[#487C69]'
 							: 'mt-7 w-full rounded-md bg-[#1C2B23] px-4 py-3 text-[12px] font-semibold text-white transition-colors hover:bg-[#304437] disabled:cursor-not-allowed disabled:opacity-50'}
 					>
-						{isManual ? 'Aktueller Modus' : 'Manuellen Modus aktivieren'}
+						{isManual
+							? m.control_current_mode()
+							: m.control_activate_manual()}
 					</button>
 
 				</div>
@@ -358,18 +364,18 @@
 
 			<div>
 				<h2 class="text-[16px] font-semibold">
-					Komponentensteuerung
+					{m.control_components()}
 				</h2>
 
 				<p class="mt-1 text-[12px] text-[#829087]">
-					Bewässerung, Beleuchtung und Lüftung verwalten
+					{m.control_components_description()}
 				</p>
 			</div>
 
 			<div class="rounded-md border border-[#CED8D0] bg-[#F1F4F0] px-4 py-2.5">
 
 				<span class="text-[12px] text-[#75847A]">
-					Aktive Komponenten
+					{m.control_active_components()}
 				</span>
 
 				<span class="ml-3 text-[14px] font-semibold tabular-nums">
@@ -409,7 +415,7 @@
 								</h3>
 
 								<p class="mt-1 text-[11px] text-[#87928A]">
-									Komponente {component.number}
+									{m.control_component_number({ number: component.number })}
 								</p>
 							</div>
 
@@ -420,7 +426,7 @@
 								? 'rounded-md bg-[#DCEAE0] px-3 py-1.5 text-[11px] font-semibold text-[#487C69]'
 								: 'rounded-md bg-[#E4E9E5] px-3 py-1.5 text-[11px] font-semibold text-[#7C8980]'}
 						>
-							{active ? 'Aktiv' : 'Inaktiv'}
+							{active ? m.control_active() : m.control_inactive()}
 						</span>
 
 					</div>
@@ -435,7 +441,7 @@
 						<div class="flex items-center justify-between gap-3">
 
 							<p class="text-[11px] font-medium text-[#829087]">
-								Aktueller Status
+								{m.control_current_status()}
 							</p>
 
 							<span
@@ -447,7 +453,9 @@
 						</div>
 
 						<p class="mt-2 text-[24px] font-semibold tracking-tight tabular-nums">
-							{active ? 'Eingeschaltet' : 'Ausgeschaltet'}
+							{active
+								? m.control_switched_on()
+								: m.control_switched_off()}
 						</p>
 
 						<p class="mt-2 text-[11px] text-[#87928A]">
@@ -460,7 +468,7 @@
 					<div class="mt-auto pt-6">
 
 						<p class="mb-3 text-[11px] font-medium text-[#829087]">
-							Manuelle Steuerung
+							{m.control_manual_control()}
 						</p>
 
 						<div class="grid grid-cols-2 gap-2">
@@ -473,7 +481,7 @@
 									? 'rounded-md bg-[#487C69] px-4 py-3 text-[12px] font-semibold text-white disabled:cursor-not-allowed'
 									: 'rounded-md border border-[#C9D5CC] bg-[#E7EDE8] px-4 py-3 text-[12px] font-semibold text-[#52695A] transition-colors hover:bg-[#DCE7DF] disabled:cursor-not-allowed disabled:opacity-50'}
 							>
-								Ein
+								{m.control_on()}
 							</button>
 
 							<button
@@ -484,18 +492,18 @@
 									? 'rounded-md bg-[#1C2B23] px-4 py-3 text-[12px] font-semibold text-white disabled:cursor-not-allowed'
 									: 'rounded-md border border-[#C9D5CC] bg-[#E7EDE8] px-4 py-3 text-[12px] font-semibold text-[#52695A] transition-colors hover:bg-[#DCE7DF] disabled:cursor-not-allowed disabled:opacity-50'}
 							>
-								Aus
+								{m.control_off()}
 							</button>
 
 						</div>
 
 						{#if !isManual}
 							<p class="mt-3 text-[11px] leading-5 text-[#87928A]">
-								Nur im manuellen Modus verfügbar.
+								{m.control_manual_only()}
 							</p>
 						{:else}
 							<p class="mt-3 text-[11px] leading-5 text-[#87928A]">
-								Steuerung über die BioBox API.
+								{m.control_api_hint()}
 							</p>
 						{/if}
 
@@ -520,8 +528,8 @@
 
 				<p class="text-[12px] text-[#77847B]">
 					{connectionError
-						? 'Statusabfrage fehlgeschlagen'
-						: `Letzte Statusabfrage: ${formatTime(lastUpdate)}`}
+						? m.control_status_failed()
+						: m.control_last_update({ time: formatTime(lastUpdate) })}
 				</p>
 
 			</div>
@@ -532,7 +540,9 @@
 				disabled={updating || sending}
 				class="text-[12px] font-semibold text-[#416B50] transition-colors hover:text-[#25332B] disabled:cursor-not-allowed disabled:opacity-50"
 			>
-				{updating ? 'Aktualisiere …' : 'Status aktualisieren →'}
+				{updating
+					? m.control_updating()
+					: `${m.control_refresh()} →`}
 			</button>
 
 		</div>
