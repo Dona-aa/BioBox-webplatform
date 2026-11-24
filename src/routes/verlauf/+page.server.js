@@ -1,18 +1,20 @@
+import * as m from '$lib/paraglide/messages.js';
+
 export async function load({ fetch, url }) {
 	const metric = url.searchParams.get('metric') || 'temperature';
 	const period = url.searchParams.get('period') || '24h';
 
 	let hours = 24;
-	let periodLabel = 'letzte 24 Stunden';
+	let periodLabel = m.history_24_hours();
 
 	if (period === '7d') {
 		hours = 24 * 7;
-		periodLabel = 'letzte 7 Tage';
+		periodLabel = m.history_7_days();
 	}
 
 	if (period === '30d') {
 		hours = 24 * 30;
-		periodLabel = 'letzte 30 Tage';
+		periodLabel = m.history_30_days();
 	}
 
 	const to = new Date();
@@ -25,30 +27,30 @@ export async function load({ fetch, url }) {
 	const history = await response.json();
 
 	let field = 'air_temp_c';
-	let label = 'Temperatur';
+	let label = m.history_air_temperature();
 	let unit = '°C';
 
 	if (metric === 'humidity') {
 		field = 'air_humidity_pct';
-		label = 'Luftfeuchtigkeit';
+		label = m.history_humidity();
 		unit = '%';
 	}
 
 	if (metric === 'soilMoisture') {
 		field = 'soil_moisture_pct';
-		label = 'Bodenfeuchtigkeit';
+		label = m.history_soil_moisture();
 		unit = '%';
 	}
 
 	if (metric === 'soilTemperature') {
 		field = 'soil_temp_c';
-		label = 'Bodentemperatur';
+		label = m.history_soil_temperature();
 		unit = '°C';
 	}
 
 	if (metric === 'light') {
 		field = 'light_lux';
-		label = 'Licht';
+		label = m.history_light();
 		unit = 'lx';
 	}
 
