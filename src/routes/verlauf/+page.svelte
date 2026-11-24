@@ -2,46 +2,48 @@
 	import { onMount } from 'svelte';
 	import { invalidateAll } from '$app/navigation';
 	import AppHeader from '$lib/components/AppHeader.svelte';
+	import * as m from '$lib/paraglide/messages.js';
+	import { getLocale } from '$lib/paraglide/runtime.js';
 
 	let { data } = $props();
 
 	const measurements = [
 		{
 			key: 'temperature',
-			label: 'Lufttemperatur',
+			label: m.history_air_temperature(),
 			unit: '°C',
 			color: '#487C69'
 		},
 		{
 			key: 'humidity',
-			label: 'Luftfeuchtigkeit',
+			label: m.history_humidity(),
 			unit: '%',
 			color: '#648A9B'
 		},
 		{
 			key: 'soilMoisture',
-			label: 'Bodenfeuchte',
+			label: m.history_soil_moisture(),
 			unit: '%',
 			color: '#A17F60'
 		},
 		{
 			key: 'soilTemperature',
-			label: 'Bodentemperatur',
+			label: m.history_soil_temperature(),
 			unit: '°C',
 			color: '#587F71'
 		},
 		{
 			key: 'light',
-			label: 'Lichtstärke',
+			label: m.history_light(),
 			unit: 'lux',
 			color: '#857B9D'
 		}
 	];
 
 	const periods = [
-		{ key: '24h', label: '24 Stunden' },
-		{ key: '7d', label: '7 Tage' },
-		{ key: '30d', label: '30 Tage' }
+		{ key: '24h', label: m.history_24_hours() },
+		{ key: '7d', label: m.history_7_days() },
+		{ key: '30d', label: m.history_30_days() }
 	];
 
 	let selectedMetric = $derived(
@@ -51,12 +53,22 @@
 
 	let selectedPeriod = $derived(data.period ?? '24h');
 
+	let selectedPeriodLabel = $derived(
+		periods.find((p) => p.key === selectedPeriod)?.label ?? selectedPeriod
+	);
+
+	function currentLocale() {
+		if (getLocale() === 'en') return 'en-US';
+		if (getLocale() === 'sq') return 'sq-AL';
+		return 'de-DE';
+	}
+
 	function formatValue(value, unit = '') {
 		if (value == null || !Number.isFinite(Number(value))) {
 			return '–';
 		}
 
-		const number = Number(value).toLocaleString('de-DE', {
+		const number = Number(value).toLocaleString(currentLocale(), {
 			maximumFractionDigits: 1
 		});
 
@@ -74,7 +86,7 @@
 
 		if (!Number.isFinite(date.getTime())) return '–';
 
-		return date.toLocaleString('de-DE', {
+		return date.toLocaleString(currentLocale(), {
 			day: '2-digit',
 			month: '2-digit',
 			year: 'numeric',
@@ -111,7 +123,6 @@
 
 	let chartLine = $derived(getChartPoints(data.chartPoints));
 
-	// Statistics from the existing server route
 	let statistics = $derived({
 		current: data.current,
 		min: data.min,
@@ -136,15 +147,15 @@
 		<div class="mb-8 flex flex-wrap items-center justify-between gap-5">
 			<div>
 				<p class="text-[12px] text-[#77847B]">
-					BioBox / Analytics / Verlauf
+					{m.history_analytics()}
 				</p>
 
 				<h1 class="mt-2 text-[27px] font-semibold tracking-tight">
-					Messwertverlauf
+					{m.history_title()}
 				</h1>
 
 				<p class="mt-1 text-[13px] text-[#77847B]">
-					Historische Sensordaten analysieren und vergleichen
+					{m.history_intro()}
 				</p>
 			</div>
 
@@ -153,11 +164,11 @@
 
 				<div>
 					<p class="text-[12px] font-medium text-[#405B49]">
-						Historische Daten
+						{m.history_historical_data()}
 					</p>
 
 					<p class="mt-0.5 text-[11px] text-[#829087]">
-						Automatische Aktualisierung
+						{m.history_auto_refresh()}
 					</p>
 				</div>
 			</div>
@@ -170,11 +181,11 @@
 
 				<div>
 					<h2 class="text-[14px] font-semibold">
-						Analysefilter
+						{m.history_filters()}
 					</h2>
 
 					<p class="mt-1 text-[12px] text-[#87928A]">
-						Wähle einen Sensor und den gewünschten Zeitraum.
+						{m.history_filter_hint()}
 					</p>
 				</div>
 
@@ -189,7 +200,7 @@
 				<!-- SENSOR FILTER -->
 				<div>
 					<p class="mb-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#859188]">
-						Messwert
+						{m.history_measurement()}
 					</p>
 
 					<div class="flex flex-wrap gap-2">
@@ -219,7 +230,7 @@
 				<!-- PERIOD FILTER -->
 				<div>
 					<p class="mb-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#859188]">
-						Zeitraum
+						{m.history_period()}
 					</p>
 
 					<div class="inline-flex flex-wrap gap-1 rounded-lg border border-[#D2DCD4] bg-[#E5EBE6] p-1">
@@ -244,10 +255,10 @@
 		<div class="mt-5 grid grid-cols-2 gap-4 xl:grid-cols-4">
 
 			{#each [
-				{ title: 'Letzter Wert', value: statistics.current },
-				{ title: 'Durchschnitt', value: statistics.average },
-				{ title: 'Minimum', value: statistics.min },
-				{ title: 'Maximum', value: statistics.max }
+				{ title: m.history_latest_value(), value: statistics.current },
+				{ title: m.history_average(), value: statistics.average },
+				{ title: m.history_minimum(), value: statistics.min },
+				{ title: m.history_maximum(), value: statistics.max }
 			] as statistic}
 
 				<div class="rounded-xl border border-[#CED8D0] bg-[#F1F4F0] p-5 sm:p-6">
@@ -290,19 +301,19 @@
 						></span>
 
 						<h2 class="text-[16px] font-semibold">
-							{selectedMetric.label} im Zeitverlauf
+							{m.history_chart_title({ sensor: selectedMetric.label })}
 						</h2>
 					</div>
 
 					<p class="mt-2 text-[12px] text-[#87928A]">
-						{data.periodLabel ?? periods.find((p) => p.key === selectedPeriod)?.label}
-						· Messwerte aus der BioBox-Datenbank
+						{selectedPeriodLabel}
+						· {m.history_database_readings()}
 					</p>
 				</div>
 
 				<div class="text-left sm:text-right">
 					<p class="text-[11px] text-[#87928A]">
-						Letzter Wert
+						{m.history_latest_value()}
 					</p>
 
 					<p class="mt-1 text-[24px] font-semibold tracking-tight tabular-nums">
@@ -323,7 +334,7 @@
 							preserveAspectRatio="none"
 							class="h-[260px] w-full sm:h-[360px]"
 							role="img"
-							aria-label={`Historischer Verlauf: ${selectedMetric.label}`}
+							aria-label={m.history_chart_label({ sensor: selectedMetric.label })}
 						>
 							<defs>
 								<linearGradient id="history-area" x1="0" y1="0" x2="0" y2="1">
@@ -380,7 +391,7 @@
 						</div>
 
 						<span class="text-[11px] text-[#87928A]">
-							{data.periodLabel ?? selectedPeriod}
+							{selectedPeriodLabel}
 						</span>
 
 					</div>
@@ -406,12 +417,11 @@
 						</div>
 
 						<h3 class="mt-4 text-[14px] font-semibold">
-							Keine Verlaufsdaten verfügbar
+							{m.history_no_data()}
 						</h3>
 
 						<p class="mt-2 max-w-sm text-[12px] leading-6 text-[#87928A]">
-							Für diesen Sensor und Zeitraum sind aktuell keine
-							historischen Messwerte vorhanden.
+							{m.history_no_data_hint()}
 						</p>
 
 					</div>
@@ -427,19 +437,19 @@
 			<section class="rounded-xl border border-[#CED8D0] bg-[#F1F4F0] p-6 lg:col-span-2">
 
 				<h2 class="text-[14px] font-semibold">
-					Über diese Auswertung
+					{m.history_about()}
 				</h2>
 
 				<p class="mt-3 max-w-2xl text-[12px] leading-6 text-[#77847B]">
-					Das Diagramm zeigt die gespeicherten Messwerte des ausgewählten
-					Sensors. Minimum, Maximum und Durchschnitt werden aus den
-					verfügbaren Daten des gewählten Zeitraums berechnet.
+					{m.history_about_description()}
 				</p>
 
 				<div class="mt-5 flex flex-wrap gap-3">
 
 					<div class="rounded-md border border-[#D5DED7] px-3 py-2">
-						<p class="text-[10px] text-[#87928A]">Sensor</p>
+						<p class="text-[10px] text-[#87928A]">
+							{m.history_sensor()}
+						</p>
 
 						<p class="mt-1 text-[12px] font-semibold">
 							{selectedMetric.label}
@@ -447,15 +457,19 @@
 					</div>
 
 					<div class="rounded-md border border-[#D5DED7] px-3 py-2">
-						<p class="text-[10px] text-[#87928A]">Zeitraum</p>
+						<p class="text-[10px] text-[#87928A]">
+							{m.history_period()}
+						</p>
 
 						<p class="mt-1 text-[12px] font-semibold">
-							{periods.find((p) => p.key === selectedPeriod)?.label ?? selectedPeriod}
+							{selectedPeriodLabel}
 						</p>
 					</div>
 
 					<div class="rounded-md border border-[#D5DED7] px-3 py-2">
-						<p class="text-[10px] text-[#87928A]">Einheit</p>
+						<p class="text-[10px] text-[#87928A]">
+							{m.history_unit()}
+						</p>
 
 						<p class="mt-1 text-[12px] font-semibold">
 							{selectedMetric.unit}
@@ -469,12 +483,11 @@
 
 				<div>
 					<h2 class="text-[14px] font-semibold">
-						Live-Monitoring
+						{m.history_live_monitoring()}
 					</h2>
 
 					<p class="mt-3 text-[12px] leading-6 text-[#77847B]">
-						Die aktuell empfangenen Sensorwerte kannst du jederzeit
-						auf der Live-Daten-Seite überprüfen.
+						{m.history_live_description()}
 					</p>
 				</div>
 
@@ -482,7 +495,7 @@
 					href="/live-daten"
 					class="mt-7 inline-flex w-fit items-center gap-2 rounded-md bg-[#1C2B23] px-4 py-3 text-[12px] font-medium text-[#E8EBE9] transition-colors hover:bg-[#304437]"
 				>
-					Live-Daten öffnen →
+					{m.history_open_live()} →
 				</a>
 
 			</section>
