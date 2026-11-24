@@ -1,8 +1,11 @@
+import { sequence } from '@sveltejs/kit/hooks';
+import { getTextDirection } from '$lib/paraglide/runtime.js';
+import { paraglideMiddleware } from '$lib/paraglide/server.js';
 import { error, redirect } from '@sveltejs/kit';
 import { createHash } from 'node:crypto';
 import { db } from '$lib/server/db.js';
 
-export async function handle({ event, resolve }) {
+async function originalHandle({ event, resolve }) {
 	const protectedPages = [
 		'/dashboard',
 		'/live-daten',
@@ -13,17 +16,10 @@ export async function handle({ event, resolve }) {
 		'/benutzer'
 	];
 
-	const protectedApi = [
-		'/api/v1/actuators/command'
-	];
-
+	const protectedApi = ['/api/v1/actuators/command'];
 	const needsLogin =
-		protectedPages.some((page) =>
-			event.url.pathname.startsWith(page)
-		) ||
-		protectedApi.some((api) =>
-			event.url.pathname.startsWith(api)
-		);
+		protectedPages.some((page) => event.url.pathname.startsWith(page)) ||
+		protectedApi.some((api) => event.url.pathname.startsWith(api));
 
 	event.locals.user = null;
 
@@ -41,9 +37,7 @@ export async function handle({ event, resolve }) {
 		throw redirect(303, '/login');
 	}
 
-	const tokenHash = createHash('sha256')
-		.update(token)
-		.digest('hex');
+	const tokenHash = createHash('sha256').update(token).digest('hex');
 
 	const [sessions] = await db.execute(
 		`SELECT
@@ -83,10 +77,7 @@ export async function handle({ event, resolve }) {
 		event.url.pathname.startsWith('/benutzer') ||
 		event.url.pathname.startsWith('/api/v1/actuators/command');
 
-	if (
-		adminOnlyRoute &&
-		event.locals.user.role !== 'admin'
-	) {
+	if (adminOnlyRoute && event.locals.user.role !== 'admin') {
 		if (event.url.pathname.startsWith('/api/')) {
 			throw error(403, 'Keine Berechtigung.');
 		}
@@ -96,3 +87,18 @@ export async function handle({ event, resolve }) {
 
 	return resolve(event);
 }
+
+/** @type {import('@sveltejs/kit').Handle} */ const handleParaglide = ({ event, resolve }) =>
+	paraglideMiddleware(event.request, ({ request, locale }) => {
+		return resolve(
+			{ ...event, request },
+			{
+				transformPageChunk: ({ html }) =>
+					html
+						.replace('%paraglide.lang%', locale)
+						.replace('%paraglide.dir%', getTextDirection(locale))
+			}
+		);
+	});
+
+export const handle = sequence(originalHandle, handleParaglide);
