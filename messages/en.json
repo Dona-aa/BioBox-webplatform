@@ -400,5 +400,6 @@
   "validation_email_required": "Please enter your email address.",
   "validation_password_required": "Please enter your password.",
   "validation_password_min_length": "The password must contain at least 8 characters.",
-  "validation_username_required": "Please enter your username."
+  "validation_username_required": "Please enter your username.",
+  "admin_error_own_role": "You cannot change your own user role."
 }

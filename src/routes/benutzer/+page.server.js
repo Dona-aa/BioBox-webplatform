@@ -3,7 +3,7 @@ import { db } from '$lib/server/db.js';
 import * as m from '$lib/paraglide/messages.js';
 
 export async function load({ locals }) {
-	if (locals.user.role !== 'admin') {
+	if (locals.user?.role !== 'admin') {
 		throw redirect(303, '/dashboard');
 	}
 
@@ -25,7 +25,7 @@ export async function load({ locals }) {
 
 export const actions = {
 	changeRole: async ({ request, locals }) => {
-		if (locals.user.role !== 'admin') {
+		if (locals.user?.role !== 'admin') {
 			return fail(403, {
 				error: m.admin_error_permission()
 			});
@@ -36,9 +36,16 @@ export const actions = {
 		const userId = Number(formData.get('userId'));
 		const role = formData.get('role');
 
-		if (!userId) {
+		if (!Number.isInteger(userId) || userId <= 0) {
 			return fail(400, {
 				error: m.admin_error_missing_user()
+			});
+		}
+
+		// Administratoren dürfen ihre eigene Rolle nicht ändern.
+		if (userId === Number(locals.user.id)) {
+			return fail(403, {
+				error: m.admin_error_own_role()
 			});
 		}
 

@@ -400,5 +400,6 @@
   "validation_email_required": "Ju lutem, vendosni adresën tuaj të emailit.",
   "validation_password_required": "Ju lutem, vendosni fjalëkalimin tuaj.",
   "validation_password_min_length": "Fjalëkalimi duhet të përmbajë të paktën 8 karaktere.",
-  "validation_username_required": "Ju lutem, vendosni emrin tuaj të përdoruesit."
+  "validation_username_required": "Ju lutem, vendosni emrin tuaj të përdoruesit.",
+  "admin_error_own_role": "Nuk mund ta ndryshoni rolin tuaj të përdoruesit."
 }
