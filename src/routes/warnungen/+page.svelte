@@ -2,6 +2,8 @@
 	import { onMount } from 'svelte';
 	import { invalidateAll } from '$app/navigation';
 	import AppHeader from '$lib/components/AppHeader.svelte';
+	import * as m from '$lib/paraglide/messages.js';
+	import { getLocale } from '$lib/paraglide/runtime.js';
 
 	let { data } = $props();
 
@@ -29,15 +31,15 @@
 	const filters = [
 		{
 			key: 'all',
-			label: 'Alle'
+			label: m.alerts_all()
 		},
 		{
 			key: 'active',
-			label: 'Aktiv'
+			label: m.alerts_active()
 		},
 		{
 			key: 'resolved',
-			label: 'Erledigt'
+			label: m.alerts_resolved()
 		}
 	];
 
@@ -55,6 +57,12 @@
 		})
 	);
 
+	function currentLocale() {
+		if (getLocale() === 'en') return 'en-US';
+		if (getLocale() === 'sq') return 'sq-AL';
+		return 'de-DE';
+	}
+
 	function filterCount(key) {
 		if (key === 'active') return activeCount;
 		if (key === 'resolved') return resolvedCount;
@@ -71,7 +79,7 @@
 			return '–';
 		}
 
-		return date.toLocaleString('de-DE', {
+		return date.toLocaleString(currentLocale(), {
 			day: '2-digit',
 			month: '2-digit',
 			year: 'numeric',
@@ -81,10 +89,10 @@
 	}
 
 	function severityLabel(severity) {
-		if (severity === 'critical') return 'Kritisch';
-		if (severity === 'warning') return 'Warnung';
+		if (severity === 'critical') return m.alerts_critical();
+		if (severity === 'warning') return m.alerts_warning();
 
-		return 'Information';
+		return m.alerts_information();
 	}
 
 	function severityColor(severity) {
@@ -121,15 +129,15 @@
 
 			<div>
 				<p class="text-[12px] font-medium text-[#748178]">
-					BioBox / Systemüberwachung
+					{m.alerts_breadcrumb()}
 				</p>
 
 				<h1 class="mt-2 text-[30px] font-semibold tracking-[-0.03em] text-[#1D2F25]">
-					Warnungen
+					{m.alerts_title()}
 				</h1>
 
 				<p class="mt-2 text-[13px] text-[#748178]">
-					Systemmeldungen überwachen, bestätigen und nachverfolgen.
+					{m.alerts_intro()}
 				</p>
 			</div>
 
@@ -138,11 +146,11 @@
 
 				<div>
 					<p class="text-[12px] font-medium text-[#405B49]">
-						Live-Aktualisierung
+						{m.alerts_live_refresh()}
 					</p>
 
 					<p class="mt-0.5 text-[11px] text-[#829087]">
-						Alle 5 Sekunden
+						{m.alerts_refresh_interval()}
 					</p>
 				</div>
 			</div>
@@ -157,7 +165,7 @@
 
 				<div class="px-6 py-5">
 					<p class="text-[11px] font-medium text-[#7A877E]">
-						Gesamt
+						{m.alerts_total()}
 					</p>
 
 					<div class="mt-3 flex items-center gap-3">
@@ -172,7 +180,7 @@
 
 				<div class="px-6 py-5">
 					<p class="text-[11px] font-medium text-[#7A877E]">
-						Aktiv
+						{m.alerts_active()}
 					</p>
 
 					<div class="mt-3 flex items-center gap-3">
@@ -187,7 +195,7 @@
 
 				<div class="px-6 py-5">
 					<p class="text-[11px] font-medium text-[#7A877E]">
-						Kritisch
+						{m.alerts_critical()}
 					</p>
 
 					<div class="mt-3 flex items-center gap-3">
@@ -202,7 +210,7 @@
 
 				<div class="px-6 py-5">
 					<p class="text-[11px] font-medium text-[#7A877E]">
-						Erledigt
+						{m.alerts_resolved()}
 					</p>
 
 					<div class="mt-3 flex items-center gap-3">
@@ -224,11 +232,11 @@
 
 			<div>
 				<h2 class="text-[16px] font-semibold text-[#25332B]">
-					Systemmeldungen
+					{m.alerts_system_messages()}
 				</h2>
 
 				<p class="mt-1 text-[12px] text-[#829087]">
-					Alle Warnungen und Ereignisse der BioBox.
+					{m.alerts_system_description()}
 				</p>
 			</div>
 
@@ -270,14 +278,14 @@
 
 				<p class="text-[12px] font-semibold text-[#52665A]">
 					{selectedFilter === 'all'
-						? 'Alle Meldungen'
+						? m.alerts_all_messages()
 						: selectedFilter === 'active'
-							? 'Aktive Meldungen'
-							: 'Erledigte Meldungen'}
+							? m.alerts_active_messages()
+							: m.alerts_resolved_messages()}
 				</p>
 
 				<p class="text-[11px] text-[#87928A]">
-					{filteredAlerts.length} Einträge
+					{m.alerts_entries({ count: filteredAlerts.length })}
 				</p>
 
 			</div>
@@ -305,18 +313,18 @@
 
 					<h3 class="mt-4 text-[14px] font-semibold">
 						{selectedFilter === 'active'
-							? 'Keine aktiven Meldungen'
+							? m.alerts_no_active()
 							: selectedFilter === 'resolved'
-								? 'Keine erledigten Meldungen'
-								: 'Keine Systemmeldungen vorhanden'}
+								? m.alerts_no_resolved()
+								: m.alerts_no_messages()}
 					</h3>
 
 					<p class="mt-2 max-w-sm text-[12px] leading-6 text-[#87928A]">
 						{selectedFilter === 'active'
-							? 'Aktuell liegen keine offenen Warnungen vor.'
+							? m.alerts_no_active_description()
 							: selectedFilter === 'resolved'
-								? 'Es wurden noch keine Meldungen als erledigt markiert.'
-								: 'Neue Warnungen der BioBox werden automatisch hier angezeigt.'}
+								? m.alerts_no_resolved_description()
+								: m.alerts_no_messages_description()}
 					</p>
 
 				</div>
@@ -407,13 +415,17 @@
 
 											{#if alert.acknowledged_at}
 												<span>
-													Bestätigt {formatDate(alert.acknowledged_at)}
+													{m.alerts_acknowledged_at({
+														date: formatDate(alert.acknowledged_at)
+													})}
 												</span>
 											{/if}
 
 											{#if alert.is_resolved && alert.resolved_at}
 												<span>
-													Erledigt {formatDate(alert.resolved_at)}
+													{m.alerts_resolved_at({
+														date: formatDate(alert.resolved_at)
+													})}
 												</span>
 											{/if}
 
@@ -430,21 +442,21 @@
 
 										<span class="inline-flex items-center gap-2 rounded-md bg-[#DFEAE1] px-3 py-2 text-[11px] font-semibold text-[#487C69]">
 											<span class="h-1.5 w-1.5 rounded-full bg-[#487C69]"></span>
-											Erledigt
+											{m.alerts_resolved()}
 										</span>
 
 									{:else if alert.acknowledged_at}
 
 										<span class="inline-flex items-center gap-2 rounded-md bg-[#E5EAE6] px-3 py-2 text-[11px] font-semibold text-[#68796D]">
 											<span class="h-1.5 w-1.5 rounded-full bg-[#829087]"></span>
-											Bestätigt
+											{m.alerts_acknowledged()}
 										</span>
 
 									{:else}
 
 										<span class="inline-flex items-center gap-2 rounded-md bg-[#EEE6D9] px-3 py-2 text-[11px] font-semibold text-[#927044]">
 											<span class="h-1.5 w-1.5 rounded-full bg-[#B38C52]"></span>
-											Aktiv
+											{m.alerts_active()}
 										</span>
 
 										<form method="POST" action="?/acknowledge">
@@ -459,7 +471,7 @@
 												type="submit"
 												class="rounded-md bg-[#1C2B23] px-4 py-2.5 text-[12px] font-semibold text-white transition-colors hover:bg-[#304437]"
 											>
-												Bestätigen
+												{m.alerts_acknowledge()}
 											</button>
 
 										</form>
@@ -484,11 +496,11 @@
 		<div class="mt-5 flex items-center justify-between border-t border-[#CAD5CC] pt-5">
 
 			<p class="text-[11px] text-[#7C8980]">
-				Automatische Aktualisierung alle 5 Sekunden.
+				{m.alerts_auto_refresh()}
 			</p>
 
 			<p class="text-[11px] text-[#7C8980]">
-				Bestätigte Warnungen bleiben offen, bis das System sie als erledigt markiert.
+				{m.alerts_footer_hint()}
 			</p>
 
 		</div>
